@@ -1014,10 +1014,10 @@ export default function Fretboard() {
                               ...styles.cell,
                               transform: `translateY(${curveOffset(colPos)}px)`,
                               opacity: muted ? 0.3 : 1,
+                              zIndex: show ? 5 : undefined,
                             }}
                             onClick={() => pluckNote(cell.midi)}
                           >
-                            <div style={{ ...styles.stringLine, width: `${GAUGE[sIdx]}px` }} />
                             {show && (
                               <div
                                 style={{
@@ -1035,6 +1035,20 @@ export default function Fretboard() {
                     </div>
                   );
                 })}
+                <div style={styles.stringLayer}>
+                  {columnOrder.map((sIdx, colPos) => (
+                    <div
+                      key={sIdx}
+                      style={{
+                        ...styles.stringLine,
+                        width: `${GAUGE[sIdx]}px`,
+                        left: `${colPos * CELL_W + CELL_W / 2}px`,
+                        top: `${curveOffset(colPos)}px`,
+                        bottom: `-${curveOffset(colPos)}px`,
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
             <div style={styles.stageShadow} />
@@ -1124,10 +1138,13 @@ export default function Fretboard() {
                             return (
                               <div
                                 key={sIdx}
-                                style={{ ...styles.cell, transform: `translateY(${curveOffset(colPos)}px)` }}
+                                style={{
+                                  ...styles.cell,
+                                  transform: `translateY(${curveOffset(colPos)}px)`,
+                                  zIndex: isFlash ? 5 : undefined,
+                                }}
                                 onClick={() => handleQuizTap(sIdx, fret, noteIndex)}
                               >
-                                <div style={{ ...styles.stringLine, width: `${GAUGE[sIdx]}px` }} />
                                 {isFlash && (
                                   <div
                                     style={{
@@ -1145,6 +1162,20 @@ export default function Fretboard() {
                         </div>
                       );
                     })}
+                    <div style={styles.stringLayer}>
+                      {[0, 1, 2, 3, 4, 5].map((sIdx, colPos) => (
+                        <div
+                          key={sIdx}
+                          style={{
+                            ...styles.stringLine,
+                            width: `${GAUGE[sIdx]}px`,
+                            left: `${colPos * CELL_W + CELL_W / 2}px`,
+                            top: `${curveOffset(colPos)}px`,
+                            bottom: `-${curveOffset(colPos)}px`,
+                          }}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <div style={styles.stageShadow} />
@@ -1567,6 +1598,7 @@ const styles = {
   },
   headerRow: { display: "flex", height: 24, background: "linear-gradient(180deg, #5a4230, #4a3524)", borderBottom: "1px solid #6b5138" },
   stringHeader: { width: CELL_W, flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#f7dd8f", textShadow: "0 1px 1px rgba(0,0,0,0.5)" },
+  stringLayer: { position: "absolute", top: 26, right: 0, bottom: 0, left: 0, zIndex: 4, pointerEvents: "none" },
   fretRow: {
     display: "flex",
     height: 38,
