@@ -1,4 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
+import { GuitarAudioEngine } from "./guitar-audio-engine.js";
+import { buildChordVoicing, buildScaleSequence, createGuitarEvent } from "./guitar-music.js";
 
 // Chromatic scale starting at C, aligned with standard MIDI % 12 (MIDI 60 = C4)
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
@@ -98,119 +100,10 @@ const RED = { bg: "#c0453a", hi: "#e37a6f", fg: "#fbf3e6" };
 function degreeColor(interval) {
   return DEGREE_COLORS[interval] || DEGREE_COLORS.default;
 }
-function midiToFreq(midi) {
-  return 440 * Math.pow(2, (midi - 69) / 12);
-}
 function nearestMidiForPitchClass(anchorMidi, pitchClass) {
   let diff = ((pitchClass - (anchorMidi % 12)) + 12) % 12;
   if (diff > 6) diff -= 12;
   return anchorMidi + diff;
-}
-
-// Physically-modeled plucked string (Karplus-Strong): a noise burst decayed through
-// a short feedback delay line. No external audio files are loaded — this runs
-// entirely in Web Audio, which is what makes it work reliably inside the artifact.
-function makeKarplusStrongBuffer(ctx, freq, duration = 1.6) {
-  const sampleRate = ctx.sampleRate;
-  const N = Math.max(2, Math.round(sampleRate / freq));
-  const totalSamples = Math.floor(sampleRate * duration);
-  const buffer = ctx.createBuffer(1, totalSamples, sampleRate);
-  const data = buffer.getChannelData(0);
-  const ring = new Float32Array(N);
-  for (let i = 0; i < N; i++) ring[i] = Math.random() * 2 - 1;
-  let prevSample = 0;
-  const decay = 0.994;
-  for (let i = 0; i < totalSamples; i++) {
-    const idx = i % N;
-    const current = ring[idx];
-    const next = decay * 0.5 * (current + prevSample);
-    ring[idx] = next;
-    data[i] = current;
-    prevSample = current;
-  }
-  return buffer;
-}
-
-const SYNTH_VOICES = ["Pad", "Keys", "Pluck"];
-
-// Oscillator-based "MIDI synth" voices for the chord progression builder — plain
-// OscillatorNodes shaped with gain envelopes and filters, like simple General-MIDI-
-// style patches. Deliberately distinct from the Karplus-Strong guitar pluck above,
-// since this instrument isn't tied to a fretboard.
-function playSynthVoiceNote(ctx, midi, startTime, duration, voice) {
-  const freq = midiToFreq(midi);
-  const stopTime = startTime + duration + 0.4;
-
-  if (voice === "Keys") {
-    const env = ctx.createGain();
-    env.gain.setValueAtTime(0.0001, startTime);
-    env.gain.linearRampToValueAtTime(0.2, startTime + 0.012);
-    env.gain.exponentialRampToValueAtTime(0.06, startTime + 0.35);
-    env.gain.exponentialRampToValueAtTime(0.0001, stopTime);
-    env.connect(ctx.destination);
-    const body = ctx.createOscillator();
-    body.type = "triangle";
-    body.frequency.value = freq;
-    body.connect(env);
-    body.start(startTime);
-    body.stop(stopTime);
-
-    const bellGain = ctx.createGain();
-    bellGain.gain.value = 0.03;
-    bellGain.connect(ctx.destination);
-    const bell = ctx.createOscillator();
-    bell.type = "sine";
-    bell.frequency.value = freq * 2;
-    bell.connect(bellGain);
-    bell.start(startTime);
-    bell.stop(stopTime);
-  } else if (voice === "Pluck") {
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(3200, startTime);
-    filter.frequency.exponentialRampToValueAtTime(500, startTime + Math.min(duration, 0.6));
-    filter.connect(ctx.destination);
-    const env = ctx.createGain();
-    env.gain.setValueAtTime(0.18, startTime);
-    env.gain.exponentialRampToValueAtTime(0.0006, stopTime);
-    env.connect(filter);
-    const osc = ctx.createOscillator();
-    osc.type = "square";
-    osc.frequency.value = freq;
-    osc.connect(env);
-    osc.start(startTime);
-    osc.stop(stopTime);
-  } else {
-    // Pad
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 2000;
-    filter.Q.value = 0.6;
-    filter.connect(ctx.destination);
-    const env = ctx.createGain();
-    env.gain.setValueAtTime(0.0001, startTime);
-    env.gain.linearRampToValueAtTime(0.09, startTime + 0.4);
-    env.gain.linearRampToValueAtTime(0.07, stopTime - 0.4);
-    env.gain.linearRampToValueAtTime(0.0001, stopTime);
-    env.connect(filter);
-    [-5, 5].forEach((detune) => {
-      const osc = ctx.createOscillator();
-      osc.type = "sawtooth";
-      osc.frequency.value = freq;
-      osc.detune.value = detune;
-      osc.connect(env);
-      osc.start(startTime);
-      osc.stop(stopTime);
-    });
-  }
-}
-
-// Close-position chord voicing for synth playback (not tied to guitar strings):
-// chord tones stacked above a root near C3, plus a bass note an octave below.
-function voicedChordNotes(rootPC, quality) {
-  const rootMidi = 48 + rootPC;
-  const upper = (CHORDS[quality] || CHORDS.Major).map((iv) => rootMidi + iv);
-  return [rootMidi - 12, ...upper];
 }
 
 function chordName(rootPC, quality) {
@@ -268,11 +161,18 @@ export default function Fretboard() {
   const [cagedShape, setCagedShape] = useState(null);
   const [capoFret, setCapoFret] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [audioSettingsOpen, setAudioSettingsOpen] = useState(false);
+  const [audioVolume, setAudioVolume] = useState(0.72);
+  const [strumSpanMs, setStrumSpanMs] = useState(90);
+  const [humanizeAudio, setHumanizeAudio] = useState(false);
+  const [audioError, setAudioError] = useState("");
   const [favorites, setFavorites] = useState([]);
   const [favName, setFavName] = useState("");
   const [favOpen, setFavOpen] = useState(false);
-  const audioCtxRef = useRef(null);
-  const bufferCacheRef = useRef(new Map());
+  const audioEngineRef = useRef(null);
+  if (!audioEngineRef.current) {
+    audioEngineRef.current = new GuitarAudioEngine({ onError: (error) => setAudioError(error.message) });
+  }
 
   // --- metronome ---
   const [bpm, setBpm] = useState(100);
@@ -315,7 +215,6 @@ export default function Fretboard() {
     }));
   });
   const [playingChordIdx, setPlayingChordIdx] = useState(-1);
-  const [synthVoice, setSynthVoice] = useState("Pad");
   const [progTempo, setProgTempo] = useState(90);
   const [addChordRoot, setAddChordRoot] = useState(NOTE_NAMES.indexOf("C"));
   const [addChordQuality, setAddChordQuality] = useState("Major");
@@ -338,6 +237,10 @@ export default function Fretboard() {
   }, [bpm]);
 
   useEffect(() => {
+    audioEngineRef.current?.setVolume(audioVolume);
+  }, [audioVolume]);
+
+  useEffect(() => {
     if (!metronomeOn) return;
     const ms = 60000 / bpm;
     const id = setInterval(() => setBeatPulse((p) => !p), ms);
@@ -347,6 +250,8 @@ export default function Fretboard() {
   useEffect(() => {
     return () => {
       if (schedulerIdRef.current) clearTimeout(schedulerIdRef.current);
+      metronomeOnRef.current = false;
+      void audioEngineRef.current?.dispose();
     };
   }, []);
 
@@ -389,35 +294,84 @@ export default function Fretboard() {
   }, [root, intervals, STRINGS, posRange]);
 
   function getCtx() {
-    if (!audioCtxRef.current) {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      audioCtxRef.current = new AC();
-    }
-    return audioCtxRef.current;
+    return audioEngineRef.current.getContext();
   }
 
-  function getPluckBuffer(ctx, midi) {
-    if (bufferCacheRef.current.has(midi)) return bufferCacheRef.current.get(midi);
-    const buf = makeKarplusStrongBuffer(ctx, midiToFreq(midi));
-    bufferCacheRef.current.set(midi, buf);
-    return buf;
-  }
-
-  function pluckNote(midi, delaySec = 0) {
+  async function playGuitarEvent(event, { delaySec = 0, duration = event.duration } = {}) {
     try {
-      const ctx = getCtx();
-      if (ctx.state === "suspended") ctx.resume();
-      const buffer = getPluckBuffer(ctx, midi);
-      const src = ctx.createBufferSource();
-      src.buffer = buffer;
-      const gain = ctx.createGain();
-      gain.gain.value = 0.9;
-      src.connect(gain);
-      gain.connect(ctx.destination);
-      src.start(ctx.currentTime + delaySec);
-    } catch (e) {
-      // audio not available; fail silently
+      const context = getCtx();
+      const when = delaySec > 0 ? context.currentTime + delaySec : null;
+      await audioEngineRef.current.playNote(event, { when, humanize: humanizeAudio, duration });
+    } catch (error) {
+      setAudioError(error.message || "Guitar audio could not be played.");
     }
+  }
+
+  function guitarEventAt(stringIndex, fret, options = {}) {
+    return createGuitarEvent({
+      strings: STRINGS,
+      tuningName,
+      stringIndex,
+      fret,
+      handPosition: posRange ? `${posRange[0]}–${posRange[1]}` : "full neck",
+      ...options,
+    });
+  }
+
+  function activateFretboardCell(stringIndex, fret) {
+    void playGuitarEvent(guitarEventAt(stringIndex, fret));
+  }
+
+  function handleFretboardKeyDown(event, stringIndex, fret) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      activateFretboardCell(stringIndex, fret);
+    }
+  }
+
+  function eventForMidi(midi, velocity = 0.74) {
+    const positions = [];
+    STRINGS.forEach((string, stringIndex) => {
+      const fret = midi - string.midi;
+      if (fret >= 0 && fret <= FRET_COUNT) positions.push({ stringIndex, fret });
+    });
+    positions.sort((a, b) => a.fret - b.fret || b.stringIndex - a.stringIndex);
+    const selected = positions[0];
+    return selected ? guitarEventAt(selected.stringIndex, selected.fret, { velocity }) : null;
+  }
+
+  function playPitch(midi, delaySec = 0) {
+    const event = eventForMidi(midi);
+    if (event) void playGuitarEvent(event, { delaySec });
+  }
+
+  function currentChordVoicing(rootPc = root, quality = chordType, duration = null) {
+    const useSelectedPosition = (mode === "Chord" || mode === "Arpeggio") && posRange;
+    const [minFret, maxFret] = useSelectedPosition ? posRange : [0, 5];
+    return buildChordVoicing({
+      strings: STRINGS,
+      tuningName,
+      rootPc,
+      intervals: CHORDS[quality] || CHORDS.Major,
+      minFret,
+      maxFret,
+      duration,
+      handPosition: useSelectedPosition ? `${minFret}–${maxFret}` : "open position",
+    });
+  }
+
+  function currentScaleSequence(direction = "up") {
+    const [minFret, maxFret] = posRange || [0, FRET_COUNT];
+    return buildScaleSequence({
+      strings: STRINGS,
+      tuningName,
+      rootPc: root,
+      intervals: SCALES[scaleType],
+      minFret,
+      maxFret,
+      handPosition: posRange ? `${minFret}–${maxFret}` : "full neck",
+      direction,
+    });
   }
 
   function metronomeClick(time, accent) {
@@ -453,7 +407,7 @@ export default function Fretboard() {
   function startMetronome() {
     if (metronomeOnRef.current) return;
     const ctx = getCtx();
-    if (ctx.state === "suspended") ctx.resume();
+    void audioEngineRef.current.resume();
     metronomeOnRef.current = true;
     setMetronomeOn(true);
     beatCountRef.current = 0;
@@ -469,31 +423,51 @@ export default function Fretboard() {
     }
   }
 
-  function collectLowChordTones() {
-    const notesToPlay = [];
-    board.forEach((cells, sIdx) => {
-      cells.forEach((c) => {
-        if (c.active && c.fret <= 5) notesToPlay.push({ ...c, sIdx });
-      });
-    });
-    notesToPlay.sort((a, b) => a.midi - b.midi);
-    return notesToPlay;
-  }
-
   async function playArpeggio() {
     if (playing) return;
     setPlaying(true);
-    const notesToPlay = collectLowChordTones();
-    for (let i = 0; i < notesToPlay.length; i++) {
-      pluckNote(notesToPlay[i].midi);
-      await new Promise((res) => setTimeout(res, 260));
+    try {
+      const notes = currentChordVoicing(root, chordType, 0.38).filter(Boolean).sort((a, b) => a.pitchMidi - b.pitchMidi);
+      await audioEngineRef.current.playSequence(notes, { spacingMs: 250, humanize: humanizeAudio, duration: 0.38 });
+      if (notes.length) await new Promise((resolve) => setTimeout(resolve, notes.length * 250 + 100));
+    } catch (error) {
+      setAudioError(error.message || "The arpeggio could not be played.");
+    } finally {
+      setPlaying(false);
     }
-    setPlaying(false);
   }
 
-  function strumChord() {
-    const notesToPlay = collectLowChordTones();
-    notesToPlay.forEach((n, i) => pluckNote(n.midi, i * 0.02));
+  async function playScale(direction = "up") {
+    if (playing) return;
+    setPlaying(true);
+    try {
+      const notes = currentScaleSequence(direction);
+      await audioEngineRef.current.playSequence(notes, { spacingMs: 250, humanize: humanizeAudio, duration: 0.34 });
+      if (notes.length) await new Promise((resolve) => setTimeout(resolve, notes.length * 250 + 100));
+    } catch (error) {
+      setAudioError(error.message || "The scale could not be played.");
+    } finally {
+      setPlaying(false);
+    }
+  }
+
+  async function playChord() {
+    try {
+      await audioEngineRef.current.playChord(currentChordVoicing(root, chordType, 1.4), { humanize: humanizeAudio, duration: 1.4 });
+    } catch (error) {
+      setAudioError(error.message || "The chord could not be played.");
+    }
+  }
+
+  async function strumChord(direction = "down") {
+    try {
+      await audioEngineRef.current.playStrum(currentChordVoicing(), direction, {
+        spanMs: strumSpanMs,
+        humanize: humanizeAudio,
+      });
+    } catch (error) {
+      setAudioError(error.message || "The chord could not be strummed.");
+    }
   }
 
   async function saveFavorite() {
@@ -560,10 +534,10 @@ export default function Fretboard() {
 
   function playEtPrompt() {
     if (etSubMode === "Note ID") {
-      pluckNote(60 + etNoteTarget);
+      playPitch(60 + etNoteTarget);
     } else {
-      pluckNote(60);
-      pluckNote(60 + etIntervalSemi, 0.6);
+      playPitch(60);
+      playPitch(60 + etIntervalSemi, 0.6);
     }
   }
   function newEtPrompt(sub) {
@@ -678,20 +652,21 @@ export default function Fretboard() {
     if (progPlaying || progression.length === 0) return;
     setProgPlaying(true);
     try {
-      const ctx = getCtx();
-      if (ctx.state === "suspended") ctx.resume();
       const safeTempo = Math.min(240, Math.max(40, progTempo));
       const chordDuration = (4 * 60) / safeTempo; // 1 bar of 4 beats per chord
       for (let i = 0; i < progression.length; i++) {
         setPlayingChordIdx(i);
         const chord = progression[i];
-        const notes = voicedChordNotes(chord.rootPC, chord.quality);
-        const startTime = ctx.currentTime + 0.03;
-        notes.forEach((m, ni) => playSynthVoiceNote(ctx, m, startTime + ni * 0.012, chordDuration * 0.92, synthVoice));
+        const voicing = currentChordVoicing(chord.rootPC, chord.quality, chordDuration * 0.92);
+        await audioEngineRef.current.playStrum(voicing, "down", {
+          spanMs: strumSpanMs,
+          humanize: humanizeAudio,
+          duration: chordDuration * 0.92,
+        });
         await new Promise((res) => setTimeout(res, chordDuration * 1000));
       }
     } catch (e) {
-      // audio not available; fail silently, same as the rest of the app's audio calls
+      setAudioError(e.message || "The progression could not be played.");
     } finally {
       setPlayingChordIdx(-1);
       setProgPlaying(false);
@@ -791,6 +766,54 @@ export default function Fretboard() {
             </div>
           )}
 
+          <div style={styles.favSection}>
+            <button
+              style={styles.favToggleBtn}
+              aria-expanded={audioSettingsOpen}
+              onClick={() => setAudioSettingsOpen((value) => !value)}
+            >
+              Guitar audio {audioSettingsOpen ? "▴" : "▾"}
+            </button>
+            {audioSettingsOpen && (
+              <div style={styles.favPanel}>
+                <p style={styles.audioInfo}>Recorded clean electric guitar · 72 string/fret samples · loaded as played</p>
+                <label style={styles.audioControl}>
+                  <span>Volume</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.02"
+                    value={audioVolume}
+                    onChange={(event) => setAudioVolume(Number(event.target.value))}
+                    aria-label="Guitar volume"
+                  />
+                </label>
+                <label style={styles.audioControl}>
+                  <span>Strum time · {strumSpanMs} ms</span>
+                  <input
+                    type="range"
+                    min="45"
+                    max="180"
+                    step="5"
+                    value={strumSpanMs}
+                    onChange={(event) => setStrumSpanMs(Number(event.target.value))}
+                    aria-label="Time from first to last string in a strum"
+                  />
+                </label>
+                <label style={styles.humanizeControl}>
+                  <input
+                    type="checkbox"
+                    checked={humanizeAudio}
+                    onChange={(event) => setHumanizeAudio(event.target.checked)}
+                  />
+                  <span>Subtle timing and pick-level variation</span>
+                </label>
+              </div>
+            )}
+          </div>
+          {audioError && <p role="alert" style={styles.audioError}>{audioError}</p>}
+
           <div style={styles.tuningRow}>
             <span style={styles.tuningLabel}>Capo</span>
             <div style={styles.capoRow}>
@@ -843,10 +866,22 @@ export default function Fretboard() {
                     {playing ? "Playing…" : "▶ Play"}
                   </button>
                 )}
+                {mode === "Scale" && (
+                  <>
+                    <button style={styles.playBtnSmall} onClick={() => playScale("up")} disabled={playing}>
+                      ↑ Ascend
+                    </button>
+                    <button style={styles.playBtnSmall} onClick={() => playScale("down")} disabled={playing}>
+                      ↓ Descend
+                    </button>
+                  </>
+                )}
                 {mode === "Chord" && (
-                  <button style={styles.playBtn} onClick={strumChord}>
-                    ▶ Strum
-                  </button>
+                  <>
+                    <button style={styles.playBtnSmall} onClick={playChord}>Pick</button>
+                    <button style={styles.playBtnSmall} onClick={() => strumChord("down")}>↓ Down</button>
+                    <button style={styles.playBtnSmall} onClick={() => strumChord("up")}>↑ Up</button>
+                  </>
                 )}
               </div>
 
@@ -973,6 +1008,44 @@ export default function Fretboard() {
                   ))}
                 </div>
 
+                <div style={styles.openRow} aria-label="Open strings, fret zero">
+                  {columnOrder.map((sIdx, colPos) => {
+                    const midi = STRINGS[sIdx].midi;
+                    const noteIndex = midi % 12;
+                    const interval = (noteIndex - root + 12) % 12;
+                    const active = intervals.includes(interval) && !posRange;
+                    const isRoot = mode === "Notes" && interval === 0;
+                    const color = mode === "Notes" ? (isRoot ? degreeColor(0) : NEUTRAL_NOTE_COLOR) : active ? degreeColor(interval) : null;
+                    const show = mode === "Notes" || active;
+                    const label = mode === "Notes" || labelMode === "note" ? NOTE_NAMES[noteIndex] : DEGREE_LABELS[interval];
+
+                    return (
+                      <div
+                        key={sIdx}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`String ${6 - sIdx}, open ${NOTE_NAMES[noteIndex]}`}
+                        style={{ ...styles.cell, ...styles.openCell, transform: `translateY(${curveOffset(colPos)}px)` }}
+                        onClick={() => activateFretboardCell(sIdx, 0)}
+                        onKeyDown={(event) => handleFretboardKeyDown(event, sIdx, 0)}
+                      >
+                        {show && (
+                          <div
+                            style={{
+                              ...styles.noteDot,
+                              ...styles.openNoteDot,
+                              background: `radial-gradient(circle at 32% 28%, ${color.hi}, ${color.bg} 70%)`,
+                              color: color.fg,
+                            }}
+                          >
+                            {label}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
                 {Array.from({ length: FRET_COUNT }).map((_, i) => {
                   const fret = i + 1;
                   const isCapoBar = capoFret > 0 && fret === capoFret + 1;
@@ -1010,13 +1083,17 @@ export default function Fretboard() {
                         return (
                           <div
                             key={sIdx}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`String ${6 - sIdx}, fret ${fret}, ${NOTE_NAMES[cell.noteIndex]}`}
                             style={{
                               ...styles.cell,
                               transform: `translateY(${curveOffset(colPos)}px)`,
                               opacity: muted ? 0.3 : 1,
                               zIndex: show ? 5 : undefined,
                             }}
-                            onClick={() => pluckNote(cell.midi)}
+                            onClick={() => activateFretboardCell(sIdx, fret)}
+                            onKeyDown={(event) => handleFretboardKeyDown(event, sIdx, fret)}
                           >
                             {show && (
                               <div
@@ -1352,18 +1429,7 @@ export default function Fretboard() {
                 ))}
               </div>
 
-              <p style={styles.sectionLabel}>Sound</p>
-              <div style={styles.tabRow}>
-                {SYNTH_VOICES.map((v) => (
-                  <button
-                    key={v}
-                    onClick={() => setSynthVoice(v)}
-                    style={{ ...styles.tab, ...(synthVoice === v ? styles.tabActive : {}) }}
-                  >
-                    {v}
-                  </button>
-                ))}
-              </div>
+              <p style={styles.hintText}>Progressions use sampled guitar voicings in the active tuning.</p>
               <div style={styles.metroRow}>
                 <button style={styles.metroStepBtn} onClick={() => setProgTempo((t) => Math.max(40, t - 5))}>
                   −
@@ -1550,9 +1616,10 @@ const styles = {
   tabRow: { display: "flex", gap: 4, background: "#241810", borderRadius: 10, padding: 4, marginBottom: 10 },
   tab: { flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: "transparent", color: "#a9977f", fontSize: 12, fontWeight: 600 },
   tabActive: { background: "#3f8a7c", color: "#f3e9d8" },
-  typeRow: { display: "flex", gap: 8, marginBottom: 6 },
+  typeRow: { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 6 },
   select: { flex: 1, padding: "10px 8px", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13 },
   playBtn: { padding: "10px 14px", borderRadius: 8, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 13, flex: "0 0 auto" },
+  playBtnSmall: { padding: "8px 10px", borderRadius: 8, border: "1px solid #8a6725", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 12, flex: "0 0 auto" },
   playBtnBig: { width: "100%", padding: "13px 0", borderRadius: 10, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 14, marginBottom: 8 },
   labelToggle: { display: "flex", border: "1px solid #4a3826", borderRadius: 8, overflow: "hidden", marginBottom: 10 },
   labelToggleBtn: { flex: 1, padding: "10px 10px", border: "none", background: "#2a1d14", color: "#a9977f", fontSize: 12, fontWeight: 600 },
@@ -1562,6 +1629,10 @@ const styles = {
   favSection: { marginBottom: 12 },
   favToggleBtn: { width: "100%", padding: "9px 0", borderRadius: 8, border: "1px solid #4a3826", background: "#241810", color: "#c9bda6", fontSize: 12, fontWeight: 600 },
   favPanel: { marginTop: 8, padding: 10, borderRadius: 8, background: "#211710", border: "1px solid #4a3826" },
+  audioInfo: { margin: "0 0 10px", color: "#a9977f", fontSize: 11, lineHeight: 1.5 },
+  audioControl: { display: "flex", flexDirection: "column", gap: 4, margin: "8px 0", color: "#e6d8c3", fontSize: 12 },
+  humanizeControl: { display: "flex", alignItems: "center", gap: 7, marginTop: 10, color: "#e6d8c3", fontSize: 12 },
+  audioError: { color: "#e37a6f", fontSize: 12, margin: "-4px 0 10px" },
   favSaveRow: { display: "flex", gap: 6, marginBottom: 8 },
   favInput: { flex: 1, padding: "8px 10px", borderRadius: 6, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13 },
   favSaveBtn: { padding: "8px 14px", borderRadius: 6, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 12 },
@@ -1577,7 +1648,7 @@ const styles = {
   metroPulse: { width: 14, height: 14, borderRadius: "50%", background: "#4a3826", transition: "transform 0.1s, background 0.1s" },
   metroPulseActive: { background: "#e0b13a", transform: "scale(1.4)" },
 
-  stage: { perspective: "2200px", perspectiveOrigin: "50% 50%", padding: "10px 20px 34px" },
+  stage: { perspective: "2200px", perspectiveOrigin: "50% 50%", padding: "10px 8px 34px" },
   tilt: { transform: "rotateX(11deg)", transformOrigin: "center center", transformStyle: "preserve-3d", margin: "0 auto" },
   stageShadow: { height: 18, margin: "-14px auto 0", width: "70%", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), transparent 70%)", filter: "blur(2px)" },
   board: {
@@ -1598,6 +1669,9 @@ const styles = {
   },
   headerRow: { display: "flex", height: 24, background: "linear-gradient(180deg, #5a4230, #4a3524)", borderBottom: "1px solid #6b5138" },
   stringHeader: { width: CELL_W, flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#f7dd8f", textShadow: "0 1px 1px rgba(0,0,0,0.5)" },
+  openRow: { display: "flex", height: 42, background: "linear-gradient(180deg, #4a3524, #3a2a1c)", borderBottom: "4px solid #c7b69b", boxShadow: "0 2px 4px rgba(0,0,0,0.4)" },
+  openCell: { height: 42 },
+  openNoteDot: { width: 25, height: 25, fontSize: 10 },
   stringLayer: { position: "absolute", top: 26, right: 0, bottom: 0, left: 0, zIndex: 4, pointerEvents: "none" },
   fretRow: {
     display: "flex",
