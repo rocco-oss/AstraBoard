@@ -981,7 +981,6 @@ export default function Fretboard() {
                       key={fret}
                       style={{
                         ...styles.fretRow,
-                        borderBottomWidth: INLAY_FRETS[fret] ? 3 : 2,
                         ...(isCapoBar ? styles.capoBarRow : {}),
                       }}
                     >
@@ -1109,7 +1108,7 @@ export default function Fretboard() {
                     {Array.from({ length: QUIZ_FRET_COUNT }).map((_, i) => {
                       const fret = i + 1;
                       return (
-                        <div key={fret} style={{ ...styles.fretRow, borderBottomWidth: INLAY_FRETS[fret] ? 3 : 2 }}>
+                        <div key={fret} style={styles.fretRow}>
                           {INLAY_FRETS[fret] === 1 && <div style={styles.inlayDotCenter} />}
                           {INLAY_FRETS[fret] === 2 && (
                             <>
@@ -1568,7 +1567,14 @@ const styles = {
   },
   headerRow: { display: "flex", height: 24, background: "linear-gradient(180deg, #5a4230, #4a3524)", borderBottom: "1px solid #6b5138" },
   stringHeader: { width: CELL_W, flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#f7dd8f", textShadow: "0 1px 1px rgba(0,0,0,0.5)" },
-  fretRow: { display: "flex", height: 38, position: "relative", borderBottom: "2px solid #7d6142", boxShadow: "0 1px 0 rgba(255,255,255,0.08)" },
+  fretRow: {
+    display: "flex",
+    height: 38,
+    position: "relative",
+    boxSizing: "border-box",
+    borderBottom: "2px solid #aeb4bb",
+    boxShadow: "0 1px 0 rgba(255,255,255,0.22), 0 -1px 1px rgba(0,0,0,0.25)",
+  },
   capoBarRow: { borderTop: "6px solid #8a8172", boxShadow: "0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)" },
   cell: { width: CELL_W, flex: "0 0 auto", height: "100%", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
   stringLine: { position: "absolute", top: 0, bottom: 0, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(90deg, #6b6255, #f0e6d2 45%, #6b6255)", boxShadow: "0 0 3px rgba(0,0,0,0.6)", borderRadius: 2 },
@@ -1577,11 +1583,11 @@ const styles = {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 8,
-    height: 8,
+    width: 9,
+    height: 9,
     borderRadius: "50%",
-    background: "radial-gradient(circle at 35% 30%, #fdf4de, #cbb98f 70%)",
-    boxShadow: "0 1px 2px rgba(0,0,0,0.6), inset 0 0 2px rgba(255,255,255,0.6)",
+    background: "radial-gradient(circle at 50% 50%, #cabb98 0%, #b4a37c 60%, #8d7a54 100%)",
+    boxShadow: "inset 0 0 0 1px rgba(30,19,9,0.6), inset 0 2px 3px rgba(0,0,0,0.55), inset 0 -1px 1px rgba(0,0,0,0.25)",
     zIndex: 1,
   },
   noteDot: { position: "relative", width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, boxShadow: "0 3px 5px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.25) inset, 0 -2px 4px rgba(0,0,0,0.25) inset", zIndex: 2 },
