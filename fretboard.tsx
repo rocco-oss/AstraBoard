@@ -1666,7 +1666,7 @@ const styles = {
     position: "relative",
     boxSizing: "border-box",
     borderBottom: "2px solid #aeb4bb",
-    boxShadow: "0 1px 0 rgba(255,255,255,0.22), 0 -1px 1px rgba(0,0,0,0.25)",
+    boxShadow: "0 1px 0 rgba(255,255,255,0.22)",
   },
   capoBarRow: { borderTop: "6px solid #8a8172", boxShadow: "0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)" },
   cell: { width: CELL_W, flex: "0 0 auto", height: "100%", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
