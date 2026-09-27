@@ -204,6 +204,65 @@ function getStyles(themeName) {
 
   // Select theme values
   const theme = isFrutigerAero ? frutigerAeroTheme : isSpaceGalaxy ? spaceGalaxyTheme : {};
+  const ui = isDefault
+    ? {
+        text: "#f3e9d8",
+        muted: "#a9977f",
+        soft: "#c9bda6",
+        emphasis: "#f7dd8f",
+        surface: "#241810",
+        surfaceAlt: "#2a1d14",
+        surfaceDeep: "#211710",
+        surfaceBackdrop: "#1c130d",
+        surfaceSelected: "#3a2a1c",
+        border: "#4a3826",
+        borderStrong: "#3a2a1c",
+        accent: "#e0b13a",
+        accentCool: "#3f8a7c",
+        accentAlt: "#7a63ad",
+        accentText: "#20140c",
+        accentSoft: "#3a2a1c",
+        navActive: "linear-gradient(180deg, #f0c363, #c9962e)",
+      }
+    : isFrutigerAero
+    ? {
+        text: "#143b50",
+        muted: "#356c80",
+        soft: "#285c70",
+        emphasis: "#07546f",
+        surface: "rgba(255,255,255,0.6)",
+        surfaceAlt: "rgba(255,255,255,0.78)",
+        surfaceDeep: "rgba(224,246,252,0.84)",
+        surfaceBackdrop: "rgba(197,232,243,0.86)",
+        surfaceSelected: "rgba(190,233,248,0.9)",
+        border: "rgba(36,132,164,0.34)",
+        borderStrong: "rgba(18,117,151,0.52)",
+        accent: "#0c9bc5",
+        accentCool: "#37aa9d",
+        accentAlt: "#227da0",
+        accentText: "#073a4c",
+        accentSoft: "rgba(83,190,220,0.34)",
+        navActive: "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(190,233,248,0.9))",
+      }
+    : {
+        text: "#f0e9ff",
+        muted: "#bbabd9",
+        soft: "#d0c1e8",
+        emphasis: "#dfc9ff",
+        surface: "rgba(12,10,30,0.84)",
+        surfaceAlt: "rgba(23,15,46,0.92)",
+        surfaceDeep: "rgba(8,6,22,0.9)",
+        surfaceBackdrop: "rgba(10,10,26,0.88)",
+        surfaceSelected: "rgba(73,41,127,0.78)",
+        border: "rgba(124,58,237,0.42)",
+        borderStrong: "rgba(167,139,250,0.56)",
+        accent: "#9b6cff",
+        accentCool: "#36c8ff",
+        accentAlt: "#7c3aed",
+        accentText: "#ffffff",
+        accentSoft: "rgba(124,58,237,0.34)",
+        navActive: "linear-gradient(135deg, rgba(124,58,237,0.8), rgba(14,165,233,0.34))",
+      };
 
   return {
     page: {
@@ -211,9 +270,7 @@ function getStyles(themeName) {
       background: isDefault
         ? "radial-gradient(ellipse at 50% 0%, #2a1c12 0%, #17100a 70%)"
         : theme.pageBackground || "radial-gradient(ellipse at 50% 0%, #2a1c12 0%, #17100a 70%)",
-      color: isDefault
-        ? "#f3e9d8"
-        : theme.pageTextColor || "#f3e9d8",
+      color: ui.text,
       fontFamily: "ui-sans-serif, system-ui, -apple-system, sans-serif",
       padding: "20px 12px 40px",
       boxSizing: "border-box",
@@ -224,13 +281,15 @@ function getStyles(themeName) {
       fontSize: 30,
       letterSpacing: 1,
       margin: 0,
-      color: isDefault ? "#f7dd8f" : isFrutigerAero ? "#145f7b" : "#c7a1ff",
+      color: ui.emphasis,
     },
-    subtitle: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", marginTop: 4, letterSpacing: 0.3 },
+    themePickerBtn: { padding: "6px 12px", borderRadius: 6, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.text, fontSize: 12, fontWeight: 600 },
+    themePickerBtnActive: { border: `1px solid ${ui.accent}`, background: ui.accent, color: ui.accentText, boxShadow: isDefault ? "none" : `0 2px 10px ${ui.accentSoft}` },
+    subtitle: { fontSize: 12, color: ui.muted, marginTop: 4, letterSpacing: 0.3 },
 
-    navRow: { display: "flex", gap: 6, marginBottom: 16, background: isDefault ? "#1c130d" : theme.navBg || "#1c130d", borderRadius: 12, padding: 5, border: isDefault ? "1px solid #3a2a1c" : theme.navBorder || "1px solid #3a2a1c" },
-    navBtn: { flex: 1, padding: "10px 0", borderRadius: 9, border: "none", background: "transparent", color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontSize: 13, fontWeight: 700 },
-    navBtnActive: { background: isDefault ? "linear-gradient(180deg, #f0c363, #c9962e)" : theme.navBgActive || "linear-gradient(180deg, #f0c363, #c9962e)", color: isDefault ? "#20140c" : theme.pageTextColor || "#20140c" },
+    navRow: { display: "flex", gap: 6, marginBottom: 16, background: isDefault ? ui.surfaceBackdrop : theme.navBg, borderRadius: 12, padding: 5, border: `1px solid ${ui.border}` },
+    navBtn: { flex: 1, padding: "10px 0", borderRadius: 9, border: "none", background: "transparent", color: ui.muted, fontSize: 13, fontWeight: 700 },
+    navBtnActive: { background: ui.navActive, color: ui.accentText, boxShadow: isDefault ? "none" : `0 2px 10px ${ui.accentSoft}` },
 
     rootRow: { display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 8 },
     rootChip: {
@@ -238,59 +297,60 @@ function getStyles(themeName) {
       minWidth: 40,
       padding: "8px 0",
       borderRadius: 999,
-      border: "1px solid #4a3826",
-      background: "#2a1d14",
-      color: "#e6d8c3",
+      border: `1px solid ${ui.border}`,
+      background: ui.surfaceAlt,
+      color: ui.text,
       fontSize: 13,
       fontWeight: 600,
     },
-    rootChipActive: { background: isDefault ? "#e0b13a" : theme.chipBgActive || "#e0b13a", color: "#20140c", border: isDefault ? "1px solid #e0b13a" : theme.chipBorder || "1px solid #e0b13a" },
+    rootChipActive: { background: ui.accent, color: ui.accentText, border: `1px solid ${ui.accent}`, boxShadow: isDefault ? "none" : `0 0 10px ${ui.accentSoft}` },
     tuningRow: { display: "flex", alignItems: "center", gap: 8, marginBottom: 8 },
-    tuningLabel: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontWeight: 600, flex: "0 0 auto" },
-    flipBtn: { flex: "0 0 auto", width: 38, height: 38, borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 16 },
-    flipBtnActive: { background: "#3f8a7c", color: "#f3e9d8", border: "1px solid #3f8a7c" },
+    tuningLabel: { fontSize: 12, color: ui.muted, fontWeight: 600, flex: "0 0 auto" },
+    flipBtn: { flex: "0 0 auto", width: 38, height: 38, borderRadius: 8, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.text, fontSize: 16 },
+    flipBtnActive: { background: ui.accentCool, color: ui.accentText, border: `1px solid ${ui.accentCool}` },
     customRow: { display: "flex", gap: 4, marginBottom: 10 },
-    customSelect: { flex: 1, padding: "8px 2px", borderRadius: 6, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 12, textAlign: "center" },
+    customSelect: { flex: 1, padding: "8px 2px", borderRadius: 6, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.text, fontSize: 12, textAlign: "center" },
     capoRow: { display: "flex", gap: 4, overflowX: "auto", flex: 1 },
-    capoChip: { flex: "0 0 auto", minWidth: 30, padding: "8px 0", borderRadius: 999, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 12, fontWeight: 600 },
-    capoChipActive: { background: "#7a63ad", color: "#f3e9d8", border: "1px solid #7a63ad" },
+    capoChip: { flex: "0 0 auto", minWidth: 30, padding: "8px 0", borderRadius: 999, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.text, fontSize: 12, fontWeight: 600 },
+    capoChipActive: { background: ui.accentAlt, color: ui.accentText, border: `1px solid ${ui.accentAlt}` },
     cagedRow: { display: "flex", gap: 6, marginBottom: 6 },
-    cagedBtn: { flex: 1, padding: "9px 0", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 13, fontWeight: 700 },
-    cagedBtnActive: { background: isDefault ? "#e0b13a" : theme.chipBgActive || "#e0b13a", color: "#20140c", border: isDefault ? "1px solid #e0b13a" : theme.chipBorder || "1px solid #e0b13a" },
-    tabRow: { display: "flex", gap: 4, background: "#241810", borderRadius: 10, padding: 4, marginBottom: 10 },
-    tab: { flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: "transparent", color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontSize: 12, fontWeight: 600 },
-    tabActive: { background: "#3f8a7c", color: "#f3e9d8" },
+    cagedBtn: { flex: 1, padding: "9px 0", borderRadius: 8, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.text, fontSize: 13, fontWeight: 700 },
+    cagedBtnActive: { background: ui.accent, color: ui.accentText, border: `1px solid ${ui.accent}` },
+    tabRow: { display: "flex", gap: 4, background: ui.surface, border: `1px solid ${ui.border}`, borderRadius: 10, padding: 4, marginBottom: 10 },
+    tab: { flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: "transparent", color: ui.muted, fontSize: 12, fontWeight: 600 },
+    tabActive: { background: ui.accentCool, color: ui.accentText },
     typeRow: { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 6 },
-    select: { flex: 1, padding: "10px 8px", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13 },
-    playBtn: { padding: "10px 14px", borderRadius: 8, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 13, flex: "0 0 auto" },
-    playBtnSmall: { padding: "8px 10px", borderRadius: 8, border: "1px solid #8a6725", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 12, flex: "0 0 auto" },
-    playBtnBig: { width: "100%", padding: "13px 0", borderRadius: 10, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 14, marginBottom: 8 },
-    labelToggle: { display: "flex", border: "1px solid #4a3826", borderRadius: 8, overflow: "hidden", marginBottom: 10 },
-    labelToggleBtn: { flex: 1, padding: "10px 10px", border: "none", background: "#2a1d14", color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontSize: 12, fontWeight: 600 },
-    labelToggleActive: { background: "#7a63ad", color: "#f3e9d8" },
-    rootLabel: { textAlign: "center", fontSize: 13, color: isDefault ? "#e0b13a" : theme.pageTextColor || "#e0b13a", letterSpacing: 0.5, margin: "10px 0 10px", fontWeight: 600 },
+    select: { flex: 1, padding: "10px 8px", borderRadius: 8, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.text, fontSize: 13 },
+    playBtn: { padding: "10px 14px", borderRadius: 8, border: `1px solid ${ui.accent}`, background: ui.accent, color: ui.accentText, fontWeight: 700, fontSize: 13, flex: "0 0 auto" },
+    playBtnSmall: { padding: "8px 10px", borderRadius: 8, border: `1px solid ${ui.borderStrong}`, background: ui.accent, color: ui.accentText, fontWeight: 700, fontSize: 12, flex: "0 0 auto" },
+    playBtnBig: { width: "100%", padding: "13px 0", borderRadius: 10, border: `1px solid ${ui.accent}`, background: ui.accent, color: ui.accentText, fontWeight: 700, fontSize: 14, marginBottom: 8, boxShadow: isDefault ? "none" : `0 3px 12px ${ui.accentSoft}` },
+    labelToggle: { display: "flex", border: `1px solid ${ui.border}`, borderRadius: 8, overflow: "hidden", marginBottom: 10 },
+    labelToggleBtn: { flex: 1, padding: "10px 10px", border: "none", background: ui.surfaceAlt, color: ui.muted, fontSize: 12, fontWeight: 600 },
+    labelToggleActive: { background: ui.accentAlt, color: ui.accentText },
+    rootLabel: { textAlign: "center", fontSize: 13, color: ui.emphasis, letterSpacing: 0.5, margin: "10px 0 10px", fontWeight: 600 },
 
     favSection: { marginBottom: 12 },
-    favToggleBtn: { width: "100%", padding: "9px 0", borderRadius: 8, border: "1px solid #4a3826", background: "#241810", color: "#c9bda6", fontSize: 12, fontWeight: 600 },
-    favPanel: { marginTop: 8, padding: 10, borderRadius: 8, background: "#211710", border: "1px solid #4a3826" },
-    audioInfo: { margin: "0 0 10px", color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontSize: 11, lineHeight: 1.5 },
-    audioControl: { display: "flex", flexDirection: "column", gap: 4, margin: "8px 0", color: "#e6d8c3", fontSize: 12 },
-    humanizeControl: { display: "flex", alignItems: "center", gap: 7, marginTop: 10, color: "#e6d8c3", fontSize: 12 },
+    favToggleBtn: { width: "100%", padding: "9px 0", borderRadius: 8, border: `1px solid ${ui.border}`, background: ui.surface, color: ui.soft, fontSize: 12, fontWeight: 600 },
+    favPanel: { marginTop: 8, padding: 10, borderRadius: 8, background: ui.surfaceDeep, border: `1px solid ${ui.border}` },
+    audioInfo: { margin: "0 0 10px", color: ui.muted, fontSize: 11, lineHeight: 1.5 },
+    audioControl: { display: "flex", flexDirection: "column", gap: 4, margin: "8px 0", color: ui.text, fontSize: 12 },
+    humanizeControl: { display: "flex", alignItems: "center", gap: 7, marginTop: 10, color: ui.text, fontSize: 12 },
+    accentControl: { accentColor: ui.accent },
     audioError: { color: "#e37a6f", fontSize: 12, margin: "-4px 0 10px" },
     favSaveRow: { display: "flex", gap: 6, marginBottom: 8 },
-    favInput: { flex: 1, padding: "8px 10px", borderRadius: 6, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13 },
-    favSaveBtn: { padding: "8px 14px", borderRadius: 6, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 12 },
+    favInput: { flex: 1, padding: "8px 10px", borderRadius: 6, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.text, fontSize: 13 },
+    favSaveBtn: { padding: "8px 14px", borderRadius: 6, border: `1px solid ${ui.accent}`, background: ui.accent, color: ui.accentText, fontWeight: 700, fontSize: 12 },
     favList: { display: "flex", flexWrap: "wrap", gap: 6 },
-    favChip: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 999, background: "#3a2a1c", fontSize: 12, border: "1px solid #5a4230" },
-    favChipLabel: { cursor: "pointer", color: "#f3e9d8" },
-    favChipDelete: { cursor: "pointer", color: "#c65f45", fontWeight: 700 },
+    favChip: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 999, background: ui.surfaceSelected, fontSize: 12, border: `1px solid ${ui.borderStrong}` },
+    favChipLabel: { cursor: "pointer", color: ui.text },
+    favChipDelete: { cursor: "pointer", color: isDefault ? "#c65f45" : ui.accentAlt, fontWeight: 700 },
 
     metroRow: { display: "flex", alignItems: "center", gap: 10, marginBottom: 10 },
-    metroStepBtn: { width: 36, height: 36, borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 18, fontWeight: 700 },
-    metroBpm: { flex: 1, textAlign: "center", fontSize: 20, fontWeight: 700, color: isDefault ? "#f7dd8f" : theme.pageTextColor || "#f7dd8f" },
-    metroBpmLabel: { fontSize: 11, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontWeight: 600 },
-    metroPulse: { width: 14, height: 14, borderRadius: "50%", background: "#4a3826", transition: "transform 0.1s, background 0.1s" },
-    metroPulseActive: { background: "#e0b13a", transform: "scale(1.4)" },
+    metroStepBtn: { width: 36, height: 36, borderRadius: 8, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.text, fontSize: 18, fontWeight: 700 },
+    metroBpm: { flex: 1, textAlign: "center", fontSize: 20, fontWeight: 700, color: ui.emphasis },
+    metroBpmLabel: { fontSize: 11, color: ui.muted, fontWeight: 600 },
+    metroPulse: { width: 14, height: 14, borderRadius: "50%", background: ui.borderStrong, transition: "transform 0.1s, background 0.1s" },
+    metroPulseActive: { background: ui.accent, transform: "scale(1.4)" },
 
     stage: { perspective: "2200px", perspectiveOrigin: "50% 50%", padding: "10px 8px 34px" },
     tilt: { transform: "rotateX(11deg)", transformOrigin: "center center", transformStyle: "preserve-3d", margin: "0 auto" },
@@ -321,7 +381,7 @@ function getStyles(themeName) {
       background: isDefault ? "linear-gradient(180deg, #5a4230, #4a3524)" : "transparent",
       borderBottom: isDefault ? "1px solid #6b5138" : theme.boardBorder || "1px solid #6b5138",
     },
-    stringHeader: { width: CELL_W, flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#f7dd8f", textShadow: "0 1px 1px rgba(0,0,0,0.5)" },
+    stringHeader: { width: CELL_W, flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: ui.emphasis, textShadow: isFrutigerAero ? "0 1px 2px rgba(255,255,255,0.85)" : "0 1px 1px rgba(0,0,0,0.5)" },
     openRow: {
       display: "flex",
       height: 42,
@@ -342,7 +402,7 @@ function getStyles(themeName) {
     },
     capoBarRow: { borderTop: "6px solid #8a8172", boxShadow: "0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)" },
     cell: { width: CELL_W, flex: "0 0 auto", height: "100%", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
-    stringLine: { position: "absolute", top: 0, bottom: 0, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(90deg, #6b6255, #f0e6d2 45%, #6b6255)", boxShadow: "0 0 3px rgba(0,0,0,0.6)", borderRadius: 2 },
+    stringLine: { position: "absolute", top: 0, bottom: 0, left: "50%", transform: "translateX(-50%)", background: isDefault ? "linear-gradient(90deg, #6b6255, #f0e6d2 45%, #6b6255)" : theme.stringBackground, boxShadow: isDefault ? "0 0 3px rgba(0,0,0,0.6)" : theme.stringBoxShadow, borderRadius: 2 },
     inlayDotCenter: {
       position: "absolute",
       top: "50%",
@@ -372,44 +432,44 @@ function getStyles(themeName) {
         : theme.noteDotShadow || "0 3px 5px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.25) inset, 0 -2px 4px rgba(0,0,0,0.25) inset",
       zIndex: 5
     },
-    legend: { display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginTop: 16, fontSize: 11, color: isDefault ? "#c9bda6" : theme.pageTextColor || "#c9bda6" },
+    legend: { display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginTop: 16, fontSize: 11, color: ui.soft },
     legendItem: { display: "flex", alignItems: "center", gap: 5 },
     legendDot: { width: 10, height: 10, borderRadius: "50%" },
 
-    promptCard: { background: "#241810", border: "1px solid #4a3826", borderRadius: 12, padding: "18px 16px", textAlign: "center", marginBottom: 14 },
-    promptLabel: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", marginBottom: 6, fontWeight: 600 },
-    promptNote: { fontSize: 40, fontWeight: 700, color: "#f7dd8f", fontFamily: "ui-serif, Georgia, serif", marginBottom: 10 },
+    promptCard: { background: ui.surface, border: `1px solid ${ui.border}`, borderRadius: 12, padding: "18px 16px", textAlign: "center", marginBottom: 14, boxShadow: isDefault ? "none" : `0 8px 24px ${ui.accentSoft}` },
+    promptLabel: { fontSize: 12, color: ui.muted, marginBottom: 6, fontWeight: 600 },
+    promptNote: { fontSize: 40, fontWeight: 700, color: ui.emphasis, fontFamily: "ui-serif, Georgia, serif", marginBottom: 10 },
     scoreRow: { display: "flex", alignItems: "center", justifyContent: "center", gap: 14, fontSize: 13, marginTop: 8 },
     scoreCorrect: { color: "#7ecb98", fontWeight: 700 },
     scoreWrong: { color: "#e37a6f", fontWeight: 700 },
-    skipBtn: { padding: "6px 12px", borderRadius: 999, border: "1px solid #4a3826", background: "#2a1d14", color: "#c9bda6", fontSize: 12 },
+    skipBtn: { padding: "6px 12px", borderRadius: 999, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.soft, fontSize: 12 },
     feedbackCorrect: { color: "#7ecb98", fontWeight: 700, marginTop: 8 },
     feedbackWrong: { color: "#e37a6f", fontWeight: 700, marginTop: 8 },
     answerGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 4 },
-    answerBtn: { padding: "12px 0", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13, fontWeight: 600 },
+    answerBtn: { padding: "12px 0", borderRadius: 8, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.text, fontSize: 13, fontWeight: 600 },
 
     progList: { display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 },
-    progBtn: { padding: "11px 12px", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 13, textAlign: "left", fontWeight: 600 },
+    progBtn: { padding: "11px 12px", borderRadius: 8, border: `1px solid ${ui.border}`, background: ui.surfaceAlt, color: ui.text, fontSize: 13, textAlign: "left", fontWeight: 600 },
     chordChipRow: { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14, justifyContent: "center" },
-    chordChip: { background: "#2a1d14", border: "1px solid #4a3826", borderRadius: 10, padding: "10px 14px", textAlign: "center", cursor: "pointer", minWidth: 60 },
-    chordChipRoman: { fontSize: 11, color: "#a9977f", marginBottom: 4 },
-    chordChipName: { fontSize: 16, fontWeight: 700, color: "#f7dd8f" },
-    hintText: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", textAlign: "center", marginTop: 6, marginBottom: 10 },
+    chordChip: { background: ui.surfaceAlt, border: `1px solid ${ui.border}`, borderRadius: 10, padding: "10px 14px", textAlign: "center", cursor: "pointer", minWidth: 60 },
+    chordChipRoman: { fontSize: 11, color: ui.muted, marginBottom: 4 },
+    chordChipName: { fontSize: 16, fontWeight: 700, color: ui.emphasis },
+    hintText: { fontSize: 12, color: ui.muted, textAlign: "center", marginTop: 6, marginBottom: 10 },
 
-    sectionLabel: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontWeight: 600, margin: "2px 0 8px" },
-    paletteChip: { background: "#241810", border: "1px dashed #4a3826", borderRadius: 10, padding: "10px 14px", textAlign: "center", cursor: "pointer", minWidth: 60 },
+    sectionLabel: { fontSize: 12, color: ui.muted, fontWeight: 600, margin: "2px 0 8px" },
+    paletteChip: { background: ui.surface, border: `1px dashed ${ui.border}`, borderRadius: 10, padding: "10px 14px", textAlign: "center", cursor: "pointer", minWidth: 60 },
     progHeaderRow: { display: "flex", alignItems: "center", justifyContent: "space-between" },
-    clearLink: { border: "none", background: "transparent", color: "#c65f45", fontSize: 12, fontWeight: 600, padding: "2px 4px", cursor: "pointer" },
+    clearLink: { border: "none", background: "transparent", color: isDefault ? "#c65f45" : ui.accentCool, fontSize: 12, fontWeight: 600, padding: "2px 4px", cursor: "pointer" },
     chordChipControls: { display: "flex", justifyContent: "center", gap: 4, marginTop: 8 },
-    chordChipCtrlBtn: { fontSize: 12, lineHeight: 1, color: "#c9bda6", padding: "3px 7px", border: "1px solid #4a3826", borderRadius: 6, background: "#2a1d14", fontWeight: 700 },
-    chordChipDeleteBtn: { color: "#e37a6f", borderColor: "#5a3226" },
-    chordChipPlaying: { border: "1px solid #e0b13a", boxShadow: "0 0 0 3px rgba(224,177,58,0.3)" },
+    chordChipCtrlBtn: { fontSize: 12, lineHeight: 1, color: ui.soft, padding: "3px 7px", border: `1px solid ${ui.border}`, borderRadius: 6, background: ui.surfaceAlt, fontWeight: 700 },
+    chordChipDeleteBtn: { color: isDefault ? "#e37a6f" : ui.accentCool, borderColor: ui.borderStrong },
+    chordChipPlaying: { border: `1px solid ${ui.accent}`, boxShadow: `0 0 0 3px ${ui.accentSoft}` },
 
     modeList: { display: "flex", flexDirection: "column", gap: 8 },
-    modeCard: { display: "flex", alignItems: "center", justifyContent: "space-between", background: "#2a1d14", border: "1px solid #4a3826", borderRadius: 10, padding: "12px 14px", cursor: "pointer" },
-    modeCardName: { fontSize: 13, fontWeight: 700, color: "#f3e9d8", flex: 1 },
-    modeCardRoot: { fontSize: 15, fontWeight: 700, color: "#e0b13a", width: 34, textAlign: "center" },
-    modeCardFormula: { fontSize: 11, color: "#a9977f", fontFamily: "ui-monospace, monospace" },
+    modeCard: { display: "flex", alignItems: "center", justifyContent: "space-between", background: ui.surfaceAlt, border: `1px solid ${ui.border}`, borderRadius: 10, padding: "12px 14px", cursor: "pointer" },
+    modeCardName: { fontSize: 13, fontWeight: 700, color: ui.text, flex: 1 },
+    modeCardRoot: { fontSize: 15, fontWeight: 700, color: ui.emphasis, width: 34, textAlign: "center" },
+    modeCardFormula: { fontSize: 11, color: ui.muted, fontFamily: "ui-monospace, monospace" },
   };
 }
 
@@ -992,43 +1052,19 @@ export default function Fretboard() {
         <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
           <button
             onClick={() => setTheme("default")}
-            style={{
-              padding: "6px 12px",
-              borderRadius: 6,
-              border: "1px solid #4a3826",
-              background: theme === "default" ? "#e0b13a" : "#2a1d14",
-              color: theme === "default" ? "#20140c" : "#f3e9d8",
-              fontSize: 12,
-              fontWeight: 600,
-            }}
+            style={{ ...styles.themePickerBtn, ...(theme === "default" ? styles.themePickerBtnActive : {}) }}
           >
             Default
           </button>
           <button
             onClick={() => setTheme("frutiger-aero")}
-            style={{
-              padding: "6px 12px",
-              borderRadius: 6,
-              border: "1px solid #4a3826",
-              background: theme === "frutiger-aero" ? "#e0b13a" : "#2a1d14",
-              color: theme === "frutiger-aero" ? "#20140c" : "#f3e9d8",
-              fontSize: 12,
-              fontWeight: 600,
-            }}
+            style={{ ...styles.themePickerBtn, ...(theme === "frutiger-aero" ? styles.themePickerBtnActive : {}) }}
           >
             Frutiger Aero
           </button>
           <button
             onClick={() => setTheme("space-galaxy")}
-            style={{
-              padding: "6px 12px",
-              borderRadius: 6,
-              border: "1px solid #4a3826",
-              background: theme === "space-galaxy" ? "#e0b13a" : "#2a1d14",
-              color: theme === "space-galaxy" ? "#20140c" : "#f3e9d8",
-              fontSize: 12,
-              fontWeight: 600,
-            }}
+            style={{ ...styles.themePickerBtn, ...(theme === "space-galaxy" ? styles.themePickerBtnActive : {}) }}
           >
             Space
           </button>
@@ -1123,6 +1159,7 @@ export default function Fretboard() {
                     value={audioVolume}
                     onChange={(event) => setAudioVolume(Number(event.target.value))}
                     aria-label="Guitar volume"
+                    style={styles.accentControl}
                   />
                 </label>
                 <label style={styles.audioControl}>
@@ -1135,6 +1172,7 @@ export default function Fretboard() {
                     value={strumSpanMs}
                     onChange={(event) => setStrumSpanMs(Number(event.target.value))}
                     aria-label="Time from first to last string in a strum"
+                    style={styles.accentControl}
                   />
                 </label>
                 <label style={styles.humanizeControl}>
@@ -1142,6 +1180,7 @@ export default function Fretboard() {
                     type="checkbox"
                     checked={humanizeAudio}
                     onChange={(event) => setHumanizeAudio(event.target.checked)}
+                    style={styles.accentControl}
                   />
                   <span>Subtle timing and pick-level variation</span>
                 </label>
