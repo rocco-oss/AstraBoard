@@ -1119,7 +1119,6 @@ export default function Fretboard() {
                 </div>
               </div>
             </div>
-            <div style={styles.stageShadow} />
           </div>
 
           <div style={styles.legend}>
@@ -1659,7 +1658,7 @@ const styles = {
   stringHeader: { width: CELL_W, flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#f7dd8f", textShadow: "0 1px 1px rgba(0,0,0,0.5)" },
   openRow: { display: "flex", height: 42, background: "linear-gradient(180deg, #4a3524, #3a2a1c)", borderBottom: "4px solid #c7b69b", boxShadow: "0 2px 4px rgba(0,0,0,0.4)" },
   openCell: { height: 42 },
-  openNoteDot: { width: 25, height: 25, fontSize: 10 },
+  openNoteDot: { width: 25, height: 25, fontSize: 10, zIndex: 5 },
   stringLayer: { position: "absolute", top: 26, right: 0, bottom: 0, left: 0, zIndex: 4, pointerEvents: "none" },
   fretRow: {
     display: "flex",
@@ -1684,7 +1683,7 @@ const styles = {
     boxShadow: "inset 0 0 0 1px rgba(30,19,9,0.6), inset 0 2px 3px rgba(0,0,0,0.55), inset 0 -1px 1px rgba(0,0,0,0.25)",
     zIndex: 1,
   },
-  noteDot: { position: "relative", width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, boxShadow: "0 3px 5px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.25) inset, 0 -2px 4px rgba(0,0,0,0.25) inset", zIndex: 2 },
+  noteDot: { position: "relative", width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, boxShadow: "0 3px 5px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.25) inset, 0 -2px 4px rgba(0,0,0,0.25) inset", zIndex: 5 },
   legend: { display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginTop: 16, fontSize: 11, color: "#c9bda6" },
   legendItem: { display: "flex", alignItems: "center", gap: 5 },
   legendDot: { width: 10, height: 10, borderRadius: "50%" },
