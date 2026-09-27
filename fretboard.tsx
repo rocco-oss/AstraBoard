@@ -224,12 +224,7 @@ function getStyles(themeName) {
       fontSize: 30,
       letterSpacing: 1,
       margin: 0,
-      background: isDefault
-        ? "linear-gradient(90deg, #f7dd8f, #b8860b)"
-        : theme.titleBackground || "linear-gradient(90deg, #f7dd8f, #b8860b)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      backgroundClip: "text",
+      color: isDefault ? "#f7dd8f" : isFrutigerAero ? "#145f7b" : "#c7a1ff",
     },
     subtitle: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", marginTop: 4, letterSpacing: 0.3 },
 
