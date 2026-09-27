@@ -579,8 +579,6 @@ export default function Fretboard() {
     });
   }, [root, intervals, STRINGS, posRange]);
 
-  const styles = getStyles(theme);
-
   function getCtx() {
     return audioEngineRef.current.getContext();
   }
