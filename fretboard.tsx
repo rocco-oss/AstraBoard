@@ -117,6 +117,296 @@ const MINOR_QUALITIES = ["Minor", "Diminished", "Major", "Minor", "Minor", "Majo
 const ROMAN_MAJOR = ["I", "ii", "iii", "IV", "V", "vi", "vii\u00b0"];
 const ROMAN_MINOR = ["i", "ii\u00b0", "III", "iv", "v", "VI", "VII"];
 
+// Theme definitions
+const frutigerAeroTheme = {
+  // Page background - light gradient sky
+  pageBackground: "linear-gradient(180deg, #87ceeb 0%, #ffffff 100%)",
+  // Page text color - dark for contrast on light background
+  pageTextColor: "#20140c",
+
+  // Header gradients - glossy look
+  titleBackground: "linear-gradient(90deg, #ffffff, #e0f7ff, #ffffff)",
+
+  // Interactive elements - glassy/glossy
+  navBg: "rgba(255, 255, 255, 0.8)",
+  navBgActive: "linear-gradient(180deg, #ffffff, #f0f8ff)",
+  navBorder: "1px solid rgba(200, 200, 255, 0.3)",
+
+  // Chips and buttons - translucent with glow
+  chipBg: "rgba(255, 255, 255, 0.7)",
+  chipBgActive: "rgba(200, 230, 255, 0.8)",
+  chipBorder: "1px solid rgba(200, 200, 255, 0.4)",
+
+  // Board - lighter wood with glass overlay
+  boardBackground: "linear-gradient(180deg, #8b4513, #a0522d)",
+  boardBorder: "1px solid #8b4513",
+  boardBoxShadow: "0 30px 50px -18px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -20px 40px rgba(0,0,0,0.2)",
+
+  // Strings - subtle shine
+  stringBackground: "linear-gradient(90deg, #c0c0c0, #e0e0e0 45%, #c0c0c0)",
+  stringBoxShadow: "0 0 2px rgba(255,255,255,0.5)",
+
+  // Frets - metallic
+  fretBorder: "2px solid #c0c0c0",
+  fretBoxShadow: "0 1px 0 rgba(255,255,255,0.3)",
+
+  // Inlay dots - mother of pearl
+  inlayBackground: "radial-gradient(circle at 50% 50%, #f0f8ff, #e6e6fa)",
+
+  // Note dots - glossy
+  noteDotShadow: "0 3px 5px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.3) inset, 0 -2px 4px rgba(0,0,0,0.1) inset",
+};
+
+const spaceGalaxyTheme = {
+  // Page background - deep space
+  pageBackground: "radial-gradient(ellipse at 50% 0%, #0a0a1a 0%, #01000f 100%)",
+  // Page text color - light for contrast on dark background
+  pageTextColor: "#f3e9d8",
+
+  // Header gradients - cosmic glow
+  titleBackground: "linear-gradient(90deg, #4b0082, #9400d3, #4b0082)",
+
+  // Interactive elements - dark with cosmic accents
+  navBg: "rgba(10, 10, 26, 0.8)",
+  navBgActive: "rgba(25, 25, 112, 0.6)",
+  navBorder: "1px solid rgba(75, 0, 130, 0.3)",
+
+  // Chips and buttons - dark with neon accents
+  chipBg: "rgba(25, 25, 112, 0.5)",
+  chipBgActive: "rgba(75, 0, 130, 0.4)",
+  chipBorder: "1px solid rgba(138, 43, 226, 0.3)",
+
+  // Board - dark cosmic material
+  boardBackground: "linear-gradient(180deg, #0f0a1f, #1a0a2e)",
+  boardBorder: "1px solid #4b0082",
+  boardBoxShadow: "0 30px 50px -18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(75,0,130,0.1), inset 0 -20px 40px rgba(0,0,0,0.4)",
+
+  // Strings - faintly glowing
+  stringBackground: "linear-gradient(90deg, #2f0a47, #4b0082 45%, #2f0a47)",
+  stringBoxShadow: "0 0 3px rgba(138, 43, 226, 0.4)",
+
+  // Frets - dark metal with glow
+  fretBorder: "2px solid #4b0082",
+  fretBoxShadow: "0 1px 0 rgba(75,0,130,0.2), 0 -1px 1px rgba(138,43,226,0.1)",
+
+  // Inlay dots - glowing gems
+  inlayBackground: "radial-gradient(circle at 50% 50%, #e6e6fa, #9370db)",
+
+  // Note dots - cosmic glow
+  noteDotShadow: "0 3px 5px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.1) inset, 0 -2px 4px rgba(138,43,226,0.2) inset",
+};
+
+// Function to get theme-aware styles
+function getStyles(themeName) {
+  const isDefault = themeName === "default";
+  const isFrutigerAero = themeName === "frutiger-aero";
+  const isSpaceGalaxy = themeName === "space-galaxy";
+
+  // Select theme values
+  const theme = isFrutigerAero ? frutigerAeroTheme : isSpaceGalaxy ? spaceGalaxyTheme : {};
+
+  return {
+    page: {
+      minHeight: "100vh",
+      background: isDefault
+        ? "radial-gradient(ellipse at 50% 0%, #2a1c12 0%, #17100a 70%)"
+        : theme.pageBackground || "radial-gradient(ellipse at 50% 0%, #2a1c12 0%, #17100a 70%)",
+      color: isDefault
+        ? "#f3e9d8"
+        : theme.pageTextColor || "#f3e9d8",
+      fontFamily: "ui-sans-serif, system-ui, -apple-system, sans-serif",
+      padding: "20px 12px 40px",
+      boxSizing: "border-box",
+    },
+    header: { marginBottom: 14, textAlign: "center" },
+    title: {
+      fontFamily: "ui-serif, Georgia, 'Times New Roman', serif",
+      fontSize: 30,
+      letterSpacing: 1,
+      margin: 0,
+      background: isDefault
+        ? "linear-gradient(90deg, #f7dd8f, #b8860b)"
+        : theme.titleBackground || "linear-gradient(90deg, #f7dd8f, #b8860b)",
+      WebkitBackgroundClip: "text",
+      WebkitTextFillColor: "transparent",
+      backgroundClip: "text",
+    },
+    subtitle: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", marginTop: 4, letterSpacing: 0.3 },
+
+    navRow: { display: "flex", gap: 6, marginBottom: 16, background: isDefault ? "#1c130d" : theme.navBg || "#1c130d", borderRadius: 12, padding: 5, border: isDefault ? "1px solid #3a2a1c" : theme.navBorder || "1px solid #3a2a1c" },
+    navBtn: { flex: 1, padding: "10px 0", borderRadius: 9, border: "none", background: "transparent", color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontSize: 13, fontWeight: 700 },
+    navBtnActive: { background: isDefault ? "linear-gradient(180deg, #f0c363, #c9962e)" : theme.navBgActive || "linear-gradient(180deg, #f0c363, #c9962e)", color: isDefault ? "#20140c" : theme.pageTextColor || "#20140c" },
+
+    rootRow: { display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 8 },
+    rootChip: {
+      flex: "0 0 auto",
+      minWidth: 40,
+      padding: "8px 0",
+      borderRadius: 999,
+      border: "1px solid #4a3826",
+      background: "#2a1d14",
+      color: "#e6d8c3",
+      fontSize: 13,
+      fontWeight: 600,
+    },
+    rootChipActive: { background: isDefault ? "#e0b13a" : theme.chipBgActive || "#e0b13a", color: "#20140c", border: isDefault ? "1px solid #e0b13a" : theme.chipBorder || "1px solid #e0b13a" },
+    tuningRow: { display: "flex", alignItems: "center", gap: 8, marginBottom: 8 },
+    tuningLabel: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontWeight: 600, flex: "0 0 auto" },
+    flipBtn: { flex: "0 0 auto", width: 38, height: 38, borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 16 },
+    flipBtnActive: { background: "#3f8a7c", color: "#f3e9d8", border: "1px solid #3f8a7c" },
+    customRow: { display: "flex", gap: 4, marginBottom: 10 },
+    customSelect: { flex: 1, padding: "8px 2px", borderRadius: 6, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 12, textAlign: "center" },
+    capoRow: { display: "flex", gap: 4, overflowX: "auto", flex: 1 },
+    capoChip: { flex: "0 0 auto", minWidth: 30, padding: "8px 0", borderRadius: 999, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 12, fontWeight: 600 },
+    capoChipActive: { background: "#7a63ad", color: "#f3e9d8", border: "1px solid #7a63ad" },
+    cagedRow: { display: "flex", gap: 6, marginBottom: 6 },
+    cagedBtn: { flex: 1, padding: "9px 0", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 13, fontWeight: 700 },
+    cagedBtnActive: { background: isDefault ? "#e0b13a" : theme.chipBgActive || "#e0b13a", color: "#20140c", border: isDefault ? "1px solid #e0b13a" : theme.chipBorder || "1px solid #e0b13a" },
+    tabRow: { display: "flex", gap: 4, background: "#241810", borderRadius: 10, padding: 4, marginBottom: 10 },
+    tab: { flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: "transparent", color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontSize: 12, fontWeight: 600 },
+    tabActive: { background: "#3f8a7c", color: "#f3e9d8" },
+    typeRow: { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 6 },
+    select: { flex: 1, padding: "10px 8px", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13 },
+    playBtn: { padding: "10px 14px", borderRadius: 8, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 13, flex: "0 0 auto" },
+    playBtnSmall: { padding: "8px 10px", borderRadius: 8, border: "1px solid #8a6725", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 12, flex: "0 0 auto" },
+    playBtnBig: { width: "100%", padding: "13px 0", borderRadius: 10, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 14, marginBottom: 8 },
+    labelToggle: { display: "flex", border: "1px solid #4a3826", borderRadius: 8, overflow: "hidden", marginBottom: 10 },
+    labelToggleBtn: { flex: 1, padding: "10px 10px", border: "none", background: "#2a1d14", color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontSize: 12, fontWeight: 600 },
+    labelToggleActive: { background: "#7a63ad", color: "#f3e9d8" },
+    rootLabel: { textAlign: "center", fontSize: 13, color: isDefault ? "#e0b13a" : theme.pageTextColor || "#e0b13a", letterSpacing: 0.5, margin: "10px 0 10px", fontWeight: 600 },
+
+    favSection: { marginBottom: 12 },
+    favToggleBtn: { width: "100%", padding: "9px 0", borderRadius: 8, border: "1px solid #4a3826", background: "#241810", color: "#c9bda6", fontSize: 12, fontWeight: 600 },
+    favPanel: { marginTop: 8, padding: 10, borderRadius: 8, background: "#211710", border: "1px solid #4a3826" },
+    audioInfo: { margin: "0 0 10px", color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontSize: 11, lineHeight: 1.5 },
+    audioControl: { display: "flex", flexDirection: "column", gap: 4, margin: "8px 0", color: "#e6d8c3", fontSize: 12 },
+    humanizeControl: { display: "flex", alignItems: "center", gap: 7, marginTop: 10, color: "#e6d8c3", fontSize: 12 },
+    audioError: { color: "#e37a6f", fontSize: 12, margin: "-4px 0 10px" },
+    favSaveRow: { display: "flex", gap: 6, marginBottom: 8 },
+    favInput: { flex: 1, padding: "8px 10px", borderRadius: 6, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13 },
+    favSaveBtn: { padding: "8px 14px", borderRadius: 6, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 12 },
+    favList: { display: "flex", flexWrap: "wrap", gap: 6 },
+    favChip: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 999, background: "#3a2a1c", fontSize: 12, border: "1px solid #5a4230" },
+    favChipLabel: { cursor: "pointer", color: "#f3e9d8" },
+    favChipDelete: { cursor: "pointer", color: "#c65f45", fontWeight: 700 },
+
+    metroRow: { display: "flex", alignItems: "center", gap: 10, marginBottom: 10 },
+    metroStepBtn: { width: 36, height: 36, borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 18, fontWeight: 700 },
+    metroBpm: { flex: 1, textAlign: "center", fontSize: 20, fontWeight: 700, color: isDefault ? "#f7dd8f" : theme.pageTextColor || "#f7dd8f" },
+    metroBpmLabel: { fontSize: 11, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontWeight: 600 },
+    metroPulse: { width: 14, height: 14, borderRadius: "50%", background: "#4a3826", transition: "transform 0.1s, background 0.1s" },
+    metroPulseActive: { background: "#e0b13a", transform: "scale(1.4)" },
+
+    stage: { perspective: "2200px", perspectiveOrigin: "50% 50%", padding: "10px 8px 34px" },
+    tilt: { transform: "rotateX(11deg)", transformOrigin: "center center", transformStyle: "preserve-3d", margin: "0 auto" },
+    stageShadow: { height: 18, margin: "-14px auto 0", width: "70%", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), transparent 70%)", filter: "blur(2px)" },
+    board: {
+      background: isDefault
+        ? "linear-gradient(180deg, #4a3524 0%, #3a2a1c 40%, #2f2216 100%)"
+        : theme.boardBackground || "linear-gradient(180deg, #4a3524 0%, #3a2a1c 40%, #2f2216 100%)",
+      borderRadius: 10,
+      border: isDefault ? "1px solid #5a4230" : theme.boardBorder || "1px solid #5a4230",
+      boxShadow: isDefault
+        ? "0 30px 50px -18px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -20px 40px rgba(0,0,0,0.35)"
+        : theme.boardBoxShadow || "0 30px 50px -18px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -20px 40px rgba(0,0,0,0.35)",
+      overflow: "hidden",
+      position: "relative",
+      margin: "0 auto",
+    },
+    vignette: {
+      position: "absolute",
+      inset: 0,
+      pointerEvents: "none",
+      background: "linear-gradient(90deg, rgba(0,0,0,0.4), rgba(0,0,0,0) 16%, rgba(0,0,0,0) 84%, rgba(0,0,0,0.4))",
+      zIndex: 3,
+    },
+    headerRow: { display: "flex", height: 24, background: "linear-gradient(180deg, #5a4230, #4a3524)", borderBottom: "1px solid #6b5138" },
+    stringHeader: { width: CELL_W, flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#f7dd8f", textShadow: "0 1px 1px rgba(0,0,0,0.5)" },
+    openRow: { display: "flex", height: 42, background: "linear-gradient(180deg, #4a3524, #3a2a1c)", borderBottom: "4px solid #c7b69b", boxShadow: "0 2px 4px rgba(0,0,0,0.4)" },
+    openCell: { height: 42 },
+    openNoteDot: { width: 25, height: 25, fontSize: 10, zIndex: 5 },
+    stringLayer: { position: "absolute", top: 26, right: 0, bottom: 0, left: 0, zIndex: 4, pointerEvents: "none" },
+    fretRow: {
+      display: "flex",
+      height: 38,
+      position: "relative",
+      boxSizing: "border-box",
+      borderBottom: isDefault ? "2px solid #aeb4bb" : theme.fretBorder || "2px solid #aeb4bb",
+      boxShadow: isDefault ? "0 1px 0 rgba(255,255,255,0.22)" : theme.fretBoxShadow || "0 1px 0 rgba(255,255,255,0.22)",
+    },
+    capoBarRow: { borderTop: "6px solid #8a8172", boxShadow: "0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)" },
+    cell: { width: CELL_W, flex: "0 0 auto", height: "100%", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
+    stringLine: { position: "absolute", top: 0, bottom: 0, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(90deg, #6b6255, #f0e6d2 45%, #6b6255)", boxShadow: "0 0 3px rgba(0,0,0,0.6)", borderRadius: 2 },
+    inlayDotCenter: {
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      width: 9,
+      height: 9,
+      borderRadius: "50%",
+      background: isDefault
+        ? "radial-gradient(circle at 50% 50%, #cabb98 0%, #b4a37c 60%, #8d7a54 100%)"
+        : theme.inlayBackground || "radial-gradient(circle at 50% 50%, #cabb98 0%, #b4a37c 60%, #8d7a54 100%)",
+      boxShadow: "inset 0 0 0 1px rgba(30,19,9,0.6), inset 0 2px 3px rgba(0,0,0,0.55), inset 0 -1px 1px rgba(0,0,0,0.25)",
+      zIndex: 1,
+    },
+    noteDot: {
+      position: "relative",
+      width: 26,
+      height: 26,
+      borderRadius: "50%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 10,
+      fontWeight: 700,
+      boxShadow: isDefault
+        ? "0 3px 5px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.25) inset, 0 -2px 4px rgba(0,0,0,0.25) inset"
+        : theme.noteDotShadow || "0 3px 5px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.25) inset, 0 -2px 4px rgba(0,0,0,0.25) inset",
+      zIndex: 5
+    },
+    legend: { display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginTop: 16, fontSize: 11, color: isDefault ? "#c9bda6" : theme.pageTextColor || "#c9bda6" },
+    legendItem: { display: "flex", alignItems: "center", gap: 5 },
+    legendDot: { width: 10, height: 10, borderRadius: "50%" },
+
+    promptCard: { background: "#241810", border: "1px solid #4a3826", borderRadius: 12, padding: "18px 16px", textAlign: "center", marginBottom: 14 },
+    promptLabel: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", marginBottom: 6, fontWeight: 600 },
+    promptNote: { fontSize: 40, fontWeight: 700, color: "#f7dd8f", fontFamily: "ui-serif, Georgia, serif", marginBottom: 10 },
+    scoreRow: { display: "flex", alignItems: "center", justifyContent: "center", gap: 14, fontSize: 13, marginTop: 8 },
+    scoreCorrect: { color: "#7ecb98", fontWeight: 700 },
+    scoreWrong: { color: "#e37a6f", fontWeight: 700 },
+    skipBtn: { padding: "6px 12px", borderRadius: 999, border: "1px solid #4a3826", background: "#2a1d14", color: "#c9bda6", fontSize: 12 },
+    feedbackCorrect: { color: "#7ecb98", fontWeight: 700, marginTop: 8 },
+    feedbackWrong: { color: "#e37a6f", fontWeight: 700, marginTop: 8 },
+    answerGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 4 },
+    answerBtn: { padding: "12px 0", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13, fontWeight: 600 },
+
+    progList: { display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 },
+    progBtn: { padding: "11px 12px", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 13, textAlign: "left", fontWeight: 600 },
+    chordChipRow: { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14, justifyContent: "center" },
+    chordChip: { background: "#2a1d14", border: "1px solid #4a3826", borderRadius: 10, padding: "10px 14px", textAlign: "center", cursor: "pointer", minWidth: 60 },
+    chordChipRoman: { fontSize: 11, color: "#a9977f", marginBottom: 4 },
+    chordChipName: { fontSize: 16, fontWeight: 700, color: "#f7dd8f" },
+    hintText: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", textAlign: "center", marginTop: 6, marginBottom: 10 },
+
+    sectionLabel: { fontSize: 12, color: isDefault ? "#a9977f" : theme.pageTextColor || "#a9977f", fontWeight: 600, margin: "2px 0 8px" },
+    paletteChip: { background: "#241810", border: "1px dashed #4a3826", borderRadius: 10, padding: "10px 14px", textAlign: "center", cursor: "pointer", minWidth: 60 },
+    progHeaderRow: { display: "flex", alignItems: "center", justifyContent: "space-between" },
+    clearLink: { border: "none", background: "transparent", color: "#c65f45", fontSize: 12, fontWeight: 600, padding: "2px 4px", cursor: "pointer" },
+    chordChipControls: { display: "flex", justifyContent: "center", gap: 4, marginTop: 8 },
+    chordChipCtrlBtn: { fontSize: 12, lineHeight: 1, color: "#c9bda6", padding: "3px 7px", border: "1px solid #4a3826", borderRadius: 6, background: "#2a1d14", fontWeight: 700 },
+    chordChipDeleteBtn: { color: "#e37a6f", borderColor: "#5a3226" },
+    chordChipPlaying: { border: "1px solid #e0b13a", boxShadow: "0 0 0 3px rgba(224,177,58,0.3)" },
+
+    modeList: { display: "flex", flexDirection: "column", gap: 8 },
+    modeCard: { display: "flex", alignItems: "center", justifyContent: "space-between", background: "#2a1d14", border: "1px solid #4a3826", borderRadius: 10, padding: "12px 14px", cursor: "pointer" },
+    modeCardName: { fontSize: 13, fontWeight: 700, color: "#f3e9d8", flex: 1 },
+    modeCardRoot: { fontSize: 15, fontWeight: 700, color: "#e0b13a", width: 34, textAlign: "center" },
+    modeCardFormula: { fontSize: 11, color: "#a9977f", fontFamily: "ui-monospace, monospace" },
+  };
+}
+
 const MAJOR_PROGRESSIONS = {
   "I – IV – V": [0, 3, 4],
   "I – V – vi – IV": [0, 4, 5, 3],
@@ -141,6 +431,8 @@ const CAPO_OPTIONS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export default function Fretboard() {
   const [view, setView] = useState("Fretboard");
+  const [theme, setTheme] = useState("default"); // default, frutiger-aero, space-galaxy
+  const styles = getStyles(theme);
 
   // --- shared fretboard config ---
   const [root, setRoot] = useState(NOTE_NAMES.indexOf("E"));
@@ -286,6 +578,8 @@ export default function Fretboard() {
       return cells;
     });
   }, [root, intervals, STRINGS, posRange]);
+
+  const styles = getStyles(theme);
 
   function getCtx() {
     return audioEngineRef.current.getContext();
@@ -691,6 +985,50 @@ export default function Fretboard() {
       <div style={styles.header}>
         <h1 style={styles.title}>Fretboard</h1>
         <p style={styles.subtitle}>tap a fret to hear it</p>
+        <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+          <button
+            onClick={() => setTheme("default")}
+            style={{
+              padding: "6px 12px",
+              borderRadius: 6,
+              border: "1px solid #4a3826",
+              background: theme === "default" ? "#e0b13a" : "#2a1d14",
+              color: theme === "default" ? "#20140c" : "#f3e9d8",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            Default
+          </button>
+          <button
+            onClick={() => setTheme("frutiger-aero")}
+            style={{
+              padding: "6px 12px",
+              borderRadius: 6,
+              border: "1px solid #4a3826",
+              background: theme === "frutiger-aero" ? "#e0b13a" : "#2a1d14",
+              color: theme === "frutiger-aero" ? "#20140c" : "#f3e9d8",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            Frutiger Aero
+          </button>
+          <button
+            onClick={() => setTheme("space-galaxy")}
+            style={{
+              padding: "6px 12px",
+              borderRadius: 6,
+              border: "1px solid #4a3826",
+              background: theme === "space-galaxy" ? "#e0b13a" : "#2a1d14",
+              color: theme === "space-galaxy" ? "#20140c" : "#f3e9d8",
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
+            Space
+          </button>
+        </div>
       </div>
 
       <div style={styles.navRow}>
@@ -1549,177 +1887,4 @@ function LegendItem({ color, label, outline }) {
 
 const CELL_W = 44;
 
-const styles = {
-  page: {
-    minHeight: "100vh",
-    background: "radial-gradient(ellipse at 50% 0%, #2a1c12 0%, #17100a 70%)",
-    color: "#f3e9d8",
-    fontFamily: "ui-sans-serif, system-ui, -apple-system, sans-serif",
-    padding: "20px 12px 40px",
-    boxSizing: "border-box",
-  },
-  header: { marginBottom: 14, textAlign: "center" },
-  title: {
-    fontFamily: "ui-serif, Georgia, 'Times New Roman', serif",
-    fontSize: 30,
-    letterSpacing: 1,
-    margin: 0,
-    background: "linear-gradient(90deg, #f7dd8f, #b8860b)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    backgroundClip: "text",
-  },
-  subtitle: { fontSize: 12, color: "#a9977f", marginTop: 4, letterSpacing: 0.3 },
-
-  navRow: { display: "flex", gap: 6, marginBottom: 16, background: "#1c130d", borderRadius: 12, padding: 5, border: "1px solid #3a2a1c" },
-  navBtn: { flex: 1, padding: "10px 0", borderRadius: 9, border: "none", background: "transparent", color: "#a9977f", fontSize: 13, fontWeight: 700 },
-  navBtnActive: { background: "linear-gradient(180deg, #f0c363, #c9962e)", color: "#20140c" },
-
-  rootRow: { display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 8 },
-  rootChip: {
-    flex: "0 0 auto",
-    minWidth: 40,
-    padding: "8px 0",
-    borderRadius: 999,
-    border: "1px solid #4a3826",
-    background: "#2a1d14",
-    color: "#e6d8c3",
-    fontSize: 13,
-    fontWeight: 600,
-  },
-  rootChipActive: { background: "#e0b13a", color: "#20140c", border: "1px solid #e0b13a" },
-  tuningRow: { display: "flex", alignItems: "center", gap: 8, marginBottom: 8 },
-  tuningLabel: { fontSize: 12, color: "#a9977f", fontWeight: 600, flex: "0 0 auto" },
-  flipBtn: { flex: "0 0 auto", width: 38, height: 38, borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 16 },
-  flipBtnActive: { background: "#3f8a7c", color: "#f3e9d8", border: "1px solid #3f8a7c" },
-  customRow: { display: "flex", gap: 4, marginBottom: 10 },
-  customSelect: { flex: 1, padding: "8px 2px", borderRadius: 6, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 12, textAlign: "center" },
-  capoRow: { display: "flex", gap: 4, overflowX: "auto", flex: 1 },
-  capoChip: { flex: "0 0 auto", minWidth: 30, padding: "8px 0", borderRadius: 999, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 12, fontWeight: 600 },
-  capoChipActive: { background: "#7a63ad", color: "#f3e9d8", border: "1px solid #7a63ad" },
-  cagedRow: { display: "flex", gap: 6, marginBottom: 6 },
-  cagedBtn: { flex: 1, padding: "9px 0", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 13, fontWeight: 700 },
-  cagedBtnActive: { background: "#e0b13a", color: "#20140c", border: "1px solid #e0b13a" },
-  tabRow: { display: "flex", gap: 4, background: "#241810", borderRadius: 10, padding: 4, marginBottom: 10 },
-  tab: { flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: "transparent", color: "#a9977f", fontSize: 12, fontWeight: 600 },
-  tabActive: { background: "#3f8a7c", color: "#f3e9d8" },
-  typeRow: { display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 6 },
-  select: { flex: 1, padding: "10px 8px", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13 },
-  playBtn: { padding: "10px 14px", borderRadius: 8, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 13, flex: "0 0 auto" },
-  playBtnSmall: { padding: "8px 10px", borderRadius: 8, border: "1px solid #8a6725", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 12, flex: "0 0 auto" },
-  playBtnBig: { width: "100%", padding: "13px 0", borderRadius: 10, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 14, marginBottom: 8 },
-  labelToggle: { display: "flex", border: "1px solid #4a3826", borderRadius: 8, overflow: "hidden", marginBottom: 10 },
-  labelToggleBtn: { flex: 1, padding: "10px 10px", border: "none", background: "#2a1d14", color: "#a9977f", fontSize: 12, fontWeight: 600 },
-  labelToggleActive: { background: "#7a63ad", color: "#f3e9d8" },
-  rootLabel: { textAlign: "center", fontSize: 13, color: "#e0b13a", letterSpacing: 0.5, margin: "10px 0 10px", fontWeight: 600 },
-
-  favSection: { marginBottom: 12 },
-  favToggleBtn: { width: "100%", padding: "9px 0", borderRadius: 8, border: "1px solid #4a3826", background: "#241810", color: "#c9bda6", fontSize: 12, fontWeight: 600 },
-  favPanel: { marginTop: 8, padding: 10, borderRadius: 8, background: "#211710", border: "1px solid #4a3826" },
-  audioInfo: { margin: "0 0 10px", color: "#a9977f", fontSize: 11, lineHeight: 1.5 },
-  audioControl: { display: "flex", flexDirection: "column", gap: 4, margin: "8px 0", color: "#e6d8c3", fontSize: 12 },
-  humanizeControl: { display: "flex", alignItems: "center", gap: 7, marginTop: 10, color: "#e6d8c3", fontSize: 12 },
-  audioError: { color: "#e37a6f", fontSize: 12, margin: "-4px 0 10px" },
-  favSaveRow: { display: "flex", gap: 6, marginBottom: 8 },
-  favInput: { flex: 1, padding: "8px 10px", borderRadius: 6, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13 },
-  favSaveBtn: { padding: "8px 14px", borderRadius: 6, border: "none", background: "#e0b13a", color: "#20140c", fontWeight: 700, fontSize: 12 },
-  favList: { display: "flex", flexWrap: "wrap", gap: 6 },
-  favChip: { display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 999, background: "#3a2a1c", fontSize: 12, border: "1px solid #5a4230" },
-  favChipLabel: { cursor: "pointer", color: "#f3e9d8" },
-  favChipDelete: { cursor: "pointer", color: "#c65f45", fontWeight: 700 },
-
-  metroRow: { display: "flex", alignItems: "center", gap: 10, marginBottom: 10 },
-  metroStepBtn: { width: 36, height: 36, borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 18, fontWeight: 700 },
-  metroBpm: { flex: 1, textAlign: "center", fontSize: 20, fontWeight: 700, color: "#f7dd8f" },
-  metroBpmLabel: { fontSize: 11, color: "#a9977f", fontWeight: 600 },
-  metroPulse: { width: 14, height: 14, borderRadius: "50%", background: "#4a3826", transition: "transform 0.1s, background 0.1s" },
-  metroPulseActive: { background: "#e0b13a", transform: "scale(1.4)" },
-
-  stage: { perspective: "2200px", perspectiveOrigin: "50% 50%", padding: "10px 8px 34px" },
-  tilt: { transform: "rotateX(11deg)", transformOrigin: "center center", transformStyle: "preserve-3d", margin: "0 auto" },
-  stageShadow: { height: 18, margin: "-14px auto 0", width: "70%", background: "radial-gradient(ellipse, rgba(0,0,0,0.55), transparent 70%)", filter: "blur(2px)" },
-  board: {
-    background: "linear-gradient(180deg, #4a3524 0%, #3a2a1c 40%, #2f2216 100%)",
-    borderRadius: 10,
-    border: "1px solid #5a4230",
-    boxShadow: "0 30px 50px -18px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -20px 40px rgba(0,0,0,0.35)",
-    overflow: "hidden",
-    position: "relative",
-    margin: "0 auto",
-  },
-  vignette: {
-    position: "absolute",
-    inset: 0,
-    pointerEvents: "none",
-    background: "linear-gradient(90deg, rgba(0,0,0,0.4), rgba(0,0,0,0) 16%, rgba(0,0,0,0) 84%, rgba(0,0,0,0.4))",
-    zIndex: 3,
-  },
-  headerRow: { display: "flex", height: 24, background: "linear-gradient(180deg, #5a4230, #4a3524)", borderBottom: "1px solid #6b5138" },
-  stringHeader: { width: CELL_W, flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#f7dd8f", textShadow: "0 1px 1px rgba(0,0,0,0.5)" },
-  openRow: { display: "flex", height: 42, background: "linear-gradient(180deg, #4a3524, #3a2a1c)", borderBottom: "4px solid #c7b69b", boxShadow: "0 2px 4px rgba(0,0,0,0.4)" },
-  openCell: { height: 42 },
-  openNoteDot: { width: 25, height: 25, fontSize: 10, zIndex: 5 },
-  stringLayer: { position: "absolute", top: 26, right: 0, bottom: 0, left: 0, zIndex: 4, pointerEvents: "none" },
-  fretRow: {
-    display: "flex",
-    height: 38,
-    position: "relative",
-    boxSizing: "border-box",
-    borderBottom: "2px solid #aeb4bb",
-    boxShadow: "0 1px 0 rgba(255,255,255,0.22)",
-  },
-  capoBarRow: { borderTop: "6px solid #8a8172", boxShadow: "0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15)" },
-  cell: { width: CELL_W, flex: "0 0 auto", height: "100%", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
-  stringLine: { position: "absolute", top: 0, bottom: 0, left: "50%", transform: "translateX(-50%)", background: "linear-gradient(90deg, #6b6255, #f0e6d2 45%, #6b6255)", boxShadow: "0 0 3px rgba(0,0,0,0.6)", borderRadius: 2 },
-  inlayDotCenter: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 9,
-    height: 9,
-    borderRadius: "50%",
-    background: "radial-gradient(circle at 50% 50%, #cabb98 0%, #b4a37c 60%, #8d7a54 100%)",
-    boxShadow: "inset 0 0 0 1px rgba(30,19,9,0.6), inset 0 2px 3px rgba(0,0,0,0.55), inset 0 -1px 1px rgba(0,0,0,0.25)",
-    zIndex: 1,
-  },
-  noteDot: { position: "relative", width: 26, height: 26, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, boxShadow: "0 3px 5px rgba(0,0,0,0.55), 0 1px 0 rgba(255,255,255,0.25) inset, 0 -2px 4px rgba(0,0,0,0.25) inset", zIndex: 5 },
-  legend: { display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginTop: 16, fontSize: 11, color: "#c9bda6" },
-  legendItem: { display: "flex", alignItems: "center", gap: 5 },
-  legendDot: { width: 10, height: 10, borderRadius: "50%" },
-
-  promptCard: { background: "#241810", border: "1px solid #4a3826", borderRadius: 12, padding: "18px 16px", textAlign: "center", marginBottom: 14 },
-  promptLabel: { fontSize: 12, color: "#a9977f", marginBottom: 6, fontWeight: 600 },
-  promptNote: { fontSize: 40, fontWeight: 700, color: "#f7dd8f", fontFamily: "ui-serif, Georgia, serif", marginBottom: 10 },
-  scoreRow: { display: "flex", alignItems: "center", justifyContent: "center", gap: 14, fontSize: 13, marginTop: 8 },
-  scoreCorrect: { color: "#7ecb98", fontWeight: 700 },
-  scoreWrong: { color: "#e37a6f", fontWeight: 700 },
-  skipBtn: { padding: "6px 12px", borderRadius: 999, border: "1px solid #4a3826", background: "#2a1d14", color: "#c9bda6", fontSize: 12 },
-  feedbackCorrect: { color: "#7ecb98", fontWeight: 700, marginTop: 8 },
-  feedbackWrong: { color: "#e37a6f", fontWeight: 700, marginTop: 8 },
-  answerGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 4 },
-  answerBtn: { padding: "12px 0", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#f3e9d8", fontSize: 13, fontWeight: 600 },
-
-  progList: { display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 },
-  progBtn: { padding: "11px 12px", borderRadius: 8, border: "1px solid #4a3826", background: "#2a1d14", color: "#e6d8c3", fontSize: 13, textAlign: "left", fontWeight: 600 },
-  chordChipRow: { display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14, justifyContent: "center" },
-  chordChip: { background: "#2a1d14", border: "1px solid #4a3826", borderRadius: 10, padding: "10px 14px", textAlign: "center", cursor: "pointer", minWidth: 60 },
-  chordChipRoman: { fontSize: 11, color: "#a9977f", marginBottom: 4 },
-  chordChipName: { fontSize: 16, fontWeight: 700, color: "#f7dd8f" },
-  hintText: { fontSize: 12, color: "#a9977f", textAlign: "center", marginTop: 6, marginBottom: 10 },
-
-  sectionLabel: { fontSize: 12, color: "#a9977f", fontWeight: 600, margin: "2px 0 8px" },
-  paletteChip: { background: "#241810", border: "1px dashed #4a3826", borderRadius: 10, padding: "10px 14px", textAlign: "center", cursor: "pointer", minWidth: 60 },
-  progHeaderRow: { display: "flex", alignItems: "center", justifyContent: "space-between" },
-  clearLink: { border: "none", background: "transparent", color: "#c65f45", fontSize: 12, fontWeight: 600, padding: "2px 4px", cursor: "pointer" },
-  chordChipControls: { display: "flex", justifyContent: "center", gap: 4, marginTop: 8 },
-  chordChipCtrlBtn: { fontSize: 12, lineHeight: 1, color: "#c9bda6", padding: "3px 7px", border: "1px solid #4a3826", borderRadius: 6, background: "#2a1d14", fontWeight: 700 },
-  chordChipDeleteBtn: { color: "#e37a6f", borderColor: "#5a3226" },
-  chordChipPlaying: { border: "1px solid #e0b13a", boxShadow: "0 0 0 3px rgba(224,177,58,0.3)" },
-
-  modeList: { display: "flex", flexDirection: "column", gap: 8 },
-  modeCard: { display: "flex", alignItems: "center", justifyContent: "space-between", background: "#2a1d14", border: "1px solid #4a3826", borderRadius: 10, padding: "12px 14px", cursor: "pointer" },
-  modeCardName: { fontSize: 13, fontWeight: 700, color: "#f3e9d8", flex: 1 },
-  modeCardRoot: { fontSize: 15, fontWeight: 700, color: "#e0b13a", width: 34, textAlign: "center" },
-  modeCardFormula: { fontSize: 11, color: "#a9977f", fontFamily: "ui-monospace, monospace" },
-};
+// Styles will be generated dynamically by getStyles(theme)
