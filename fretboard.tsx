@@ -1460,16 +1460,16 @@ export default function Fretboard() {
           <div style={styles.legend}>
             {mode === "Notes" ? (
               <>
-                <LegendItem color="#e0b13a" label="Root" />
-                <LegendItem color="#5a4634" label="Note" outline />
+                <LegendItem styles={styles} color="#e0b13a" label="Root" />
+                <LegendItem styles={styles} color="#5a4634" label="Note" outline />
               </>
             ) : (
               <>
-                <LegendItem color="#e0b13a" label="Root" />
-                <LegendItem color="#c65f45" label="3rd" />
-                <LegendItem color="#3f8a7c" label="5th" />
-                <LegendItem color="#7a63ad" label="7th" />
-                <LegendItem color="#9a9082" label="other" />
+                <LegendItem styles={styles} color="#e0b13a" label="Root" />
+                <LegendItem styles={styles} color="#c65f45" label="3rd" />
+                <LegendItem styles={styles} color="#3f8a7c" label="5th" />
+                <LegendItem styles={styles} color="#7a63ad" label="7th" />
+                <LegendItem styles={styles} color="#9a9082" label="other" />
               </>
             )}
           </div>
@@ -1874,7 +1874,7 @@ export default function Fretboard() {
   );
 }
 
-function LegendItem({ color, label, outline }) {
+function LegendItem({ styles, color, label, outline }) {
   return (
     <div style={styles.legendItem}>
       <div style={{ ...styles.legendDot, background: color, border: outline ? "1px solid #8a7860" : "none" }} />
