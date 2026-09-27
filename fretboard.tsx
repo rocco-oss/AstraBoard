@@ -20,12 +20,6 @@ const FRET_COUNT = 24;
 const QUIZ_FRET_COUNT = 15;
 const INLAY_FRETS = { 3: 1, 5: 1, 7: 1, 9: 1, 12: 2, 15: 1, 17: 1, 19: 1, 21: 1, 24: 2 };
 const GAUGE = [3.4, 2.8, 2.2, 1.8, 1.3, 1.0];
-const CURVE_MAX = 5; // px of simulated fretboard-radius curvature at the outer strings
-
-function curveOffset(colPos) {
-  const norm = (colPos - 2.5) / 2.5; // -1..1 across 6 columns
-  return CURVE_MAX * norm * norm;
-}
 
 const POSITIONS = [
   { label: "Full neck", range: null },
@@ -1025,7 +1019,7 @@ export default function Fretboard() {
                         role="button"
                         tabIndex={0}
                         aria-label={`String ${6 - sIdx}, open ${NOTE_NAMES[noteIndex]}`}
-                        style={{ ...styles.cell, ...styles.openCell, transform: `translateY(${curveOffset(colPos)}px)` }}
+                        style={{ ...styles.cell, ...styles.openCell }}
                         onClick={() => activateFretboardCell(sIdx, 0)}
                         onKeyDown={(event) => handleFretboardKeyDown(event, sIdx, 0)}
                       >
@@ -1088,7 +1082,6 @@ export default function Fretboard() {
                             aria-label={`String ${6 - sIdx}, fret ${fret}, ${NOTE_NAMES[cell.noteIndex]}`}
                             style={{
                               ...styles.cell,
-                              transform: `translateY(${curveOffset(colPos)}px)`,
                               opacity: muted ? 0.3 : 1,
                               zIndex: show ? 5 : undefined,
                             }}
@@ -1120,8 +1113,6 @@ export default function Fretboard() {
                         ...styles.stringLine,
                         width: `${GAUGE[sIdx]}px`,
                         left: `${colPos * CELL_W + CELL_W / 2}px`,
-                        top: `${curveOffset(colPos)}px`,
-                        bottom: `-${curveOffset(colPos)}px`,
                       }}
                     />
                   ))}
@@ -1217,7 +1208,6 @@ export default function Fretboard() {
                                 key={sIdx}
                                 style={{
                                   ...styles.cell,
-                                  transform: `translateY(${curveOffset(colPos)}px)`,
                                   zIndex: isFlash ? 5 : undefined,
                                 }}
                                 onClick={() => handleQuizTap(sIdx, fret, noteIndex)}
@@ -1247,8 +1237,6 @@ export default function Fretboard() {
                             ...styles.stringLine,
                             width: `${GAUGE[sIdx]}px`,
                             left: `${colPos * CELL_W + CELL_W / 2}px`,
-                            top: `${curveOffset(colPos)}px`,
-                            bottom: `-${curveOffset(colPos)}px`,
                           }}
                         />
                       ))}
