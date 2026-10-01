@@ -928,7 +928,7 @@ export default function Fretboard() {
                   onClick={() => setLabelMode("note")}
                   style={{ ...styles.labelToggleBtn, ...(labelMode === "note" ? styles.labelToggleActive : {}) }}
                 >
-                  Letters
+                  Notes
                 </button>
               </div>
             </div>
