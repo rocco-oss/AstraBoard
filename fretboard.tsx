@@ -574,14 +574,15 @@ export default function Fretboard() {
   const [theoryModeRoot, setTheoryModeRoot] = useState(NOTE_NAMES.indexOf("C"));
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await window.storage.get(FAVORITES_KEY, false);
-        if (res && res.value) setFavorites(JSON.parse(res.value));
-      } catch (e) {
-        // no favorites saved yet
+    try {
+      const saved = window.localStorage.getItem(FAVORITES_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) setFavorites(parsed);
       }
-    })();
+    } catch (e) {
+      // no favorites saved yet, or browser storage is unavailable
+    }
   }, []);
 
   useEffect(() => {
@@ -822,7 +823,7 @@ export default function Fretboard() {
     }
   }
 
-  async function saveFavorite() {
+  function saveFavorite() {
     const label =
       favName.trim() ||
       (mode === "Notes" ? `${NOTE_NAMES[root]} notes` : `${NOTE_NAMES[root]} ${activeType}`);
@@ -841,7 +842,7 @@ export default function Fretboard() {
     setFavorites(next);
     setFavName("");
     try {
-      await window.storage.set(FAVORITES_KEY, JSON.stringify(next), false);
+      window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
     } catch (e) {
       // save failed silently
     }
@@ -858,11 +859,11 @@ export default function Fretboard() {
     setView("Fretboard");
   }
 
-  async function deleteFavorite(id) {
+  function deleteFavorite(id) {
     const next = favorites.filter((f) => f.id !== id);
     setFavorites(next);
     try {
-      await window.storage.set(FAVORITES_KEY, JSON.stringify(next), false);
+      window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
     } catch (e) {
       // ignore
     }
