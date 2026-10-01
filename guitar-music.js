@@ -23,6 +23,7 @@ export function createGuitarEvent({
 
   const string = 6 - stringIndex;
   const openMidi = strings[stringIndex].midi;
+  const normalizedTechnique = technique && typeof technique === "string" ? technique : "picked";
 
   return {
     string,
@@ -32,8 +33,8 @@ export function createGuitarEvent({
     tuning: tuningName,
     velocity: Math.max(0, Math.min(1, velocity)),
     duration,
-    articulation: "picked",
-    technique,
+    articulation: normalizedTechnique,
+    technique: normalizedTechnique,
     playingPosition: { string, fret, handPosition },
     pickPosition: "bridge",
     openString: fret === 0,
@@ -89,6 +90,7 @@ export function buildChordVoicing({
   velocity = 0.72,
   duration = null,
   handPosition = null,
+  technique = "picked",
 }) {
   if (!Array.isArray(strings) || strings.length !== 6 || !Array.isArray(intervals) || intervals.length === 0) {
     return Array(6).fill(null);
@@ -128,7 +130,7 @@ export function buildChordVoicing({
   // A very narrow requested position can omit an entire chord tone. Keep the
   // position if it still gives a playable grip; otherwise choose a low voicing.
   if (!best && (minFret !== 0 || maxFret !== 5)) {
-    return buildChordVoicing({ strings, tuningName, rootPc, intervals, velocity, duration, handPosition });
+    return buildChordVoicing({ strings, tuningName, rootPc, intervals, velocity, duration, handPosition, technique });
   }
   if (!best) return Array(6).fill(null);
 
@@ -141,7 +143,7 @@ export function buildChordVoicing({
           fret: note.fret,
           velocity,
           duration,
-          technique: "picked",
+          technique,
           handPosition,
         })
       : null
@@ -176,6 +178,7 @@ export function buildScaleSequence({
   duration = 0.34,
   handPosition = null,
   direction = "up",
+  technique = "picked",
 }) {
   const normalizedRoot = pitchClass(rootPc);
   const scaleSteps = [...new Set(intervals.map((step) => ((step % 12) + 12) % 12))]
@@ -241,7 +244,7 @@ export function buildScaleSequence({
       fret: note.fret,
       velocity,
       duration,
-      technique: "picked",
+      technique,
       handPosition,
     })
   );
